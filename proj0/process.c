@@ -11,7 +11,6 @@
 //----------------------------------------------------------------------//
 
 #include "process.h" // get the function signature for what we implement
-#include <string.h>  // need to include string.h in order to have strcmp
 
 //----------------------------------------------------------------------//
 //
@@ -29,7 +28,7 @@
 //
 //----------------------------------------------------------------------//
 
-void processWord(char *inputWord) {
+void processWord(char inputWord[], int count) {
    char pingStr[] = "Ping";  // word we want to match
    
    // if we are passed a NULL pointer, then bad things will happen.
@@ -43,7 +42,11 @@ void processWord(char *inputWord) {
       printf("Give me a Ping. One Ping only, please.\n");
    }
    else {
-      printf("%s\n", inputWord);
+	   for (int i = 0; i < count; ++i)
+	   {
+		   printf("%s ", inputWord[i]);
+	   }
+	   printf("\n");
    }
    
    return;

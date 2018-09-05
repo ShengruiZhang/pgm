@@ -19,25 +19,19 @@
 
 #include "process.h"
 
-int main( void ) {
-   
-   char userWord[MAX_STRING+1]; // Read from user into this string
-   int scanfResult = 0;	        // Used to store the result from scanf
-
+int main(int argc, char *argv[]) {
    // Prompt the user.
-	printf("Enter your word: ");
+//	printf("Enter your word: ");
 
    // Scan the word from the user.
    //
    // Note the use of 32 to limit the amount of the string we capture,
    // in order to prevent a buffer overflow situation; your logic will
    // be different when processing the command line arguments.
-	scanfResult = scanf("%32s", userWord);
+//	scanfResult = scanf("%32s", userWord);
 	
-   // Make sure that scanf returns a 1, since that will indicate
-   // exactly 1 string was matched.
-	if (scanfResult == 1) {
-		processWord(userWord);
+	if (1) {
+		processWord(argv, argc-1);
 	}
    // Tell the user that something went wrong
 	else {
