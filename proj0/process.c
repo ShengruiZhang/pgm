@@ -28,7 +28,7 @@
 //
 //----------------------------------------------------------------------//
 
-void processWord(char inputWord[], int count) {
+void processWord(char *inputWord[], int count) {
    char pingStr[] = "Ping";  // word we want to match
    
    // if we are passed a NULL pointer, then bad things will happen.
@@ -37,15 +37,22 @@ void processWord(char inputWord[], int count) {
       return;
    }
    
+   if (count > 1)
+   {
+	   printf("Usage:echoer [word]\n");
+  
+   return;
+   }
+
    // match for Ping
-   if (strcmp(pingStr, inputWord) == 0) {
+   if (strcmp(pingStr, inputWord[1]) == 0) {
       printf("Give me a Ping. One Ping only, please.\n");
    }
    else {
-	   for (int i = 0; i < count; ++i)
-	   {
-		   printf("%s ", inputWord[i]);
-	   }
+//	   for (int i = 1; i < count + 1; ++i)
+//	   {
+		   printf("%s", inputWord[1]);
+//	   }
 	   printf("\n");
    }
    

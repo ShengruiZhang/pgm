@@ -16,6 +16,6 @@
 #include <stdio.h>
 #include <string.h>
 
-void processWord(char inputWord[], int count);
+void processWord(char *inputWord[], int count);
 
 #endif // PROCESS_H
