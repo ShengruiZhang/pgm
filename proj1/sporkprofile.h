@@ -62,7 +62,8 @@ typedef struct SporkProfile_struct {
  *
  */
 
-int ReadSporkDataFromFile(SporkProfile sporkProfiles[], int maxProfiles,
+int ReadSporkDataFromFile
+(SporkProfile sporkProfiles[], int maxProfiles,
                           char *fileName);
 
 /**************************************************************************************************/
@@ -75,7 +76,8 @@ int ReadSporkDataFromFile(SporkProfile sporkProfiles[], int maxProfiles,
  * maxDist: Indicates the maxmimum distance between the user and a nearby business 
  *
  */
-void FindNearbyBusinesses(SporkProfile sporkProfiles[], int numProfiles,
+void FindNearbyBusinesses
+(SporkProfile sporkProfiles[], int numProfiles,
                         double userLocX, double userLocY, double maxDist);
 
 
@@ -87,7 +89,8 @@ void FindNearbyBusinesses(SporkProfile sporkProfiles[], int numProfiles,
  * equal to minRating, and false otherwise.
  *
  */
-void FindGoodBusinesses(SporkProfile sporkProfiles[], int numProfiles,
+void FindGoodBusinesses
+(SporkProfile sporkProfiles[], int numProfiles,
                         double minRating);
 
 /**************************************************************************************************/
@@ -99,7 +102,8 @@ void FindGoodBusinesses(SporkProfile sporkProfiles[], int numProfiles,
  *
  */
 
-int GetIndexMaxSponsor(SporkProfile sporkProfiles[], int numProfiles);
+int GetIndexMaxSponsor
+(SporkProfile sporkProfiles[], int numProfiles);
 
 /**************************************************************************************************/
 
@@ -120,7 +124,8 @@ int GetIndexMaxSponsor(SporkProfile sporkProfiles[], int numProfiles);
  * Returns: -1 if the output file could not be opened, and 0 otherwise.
  *
  */
- int WriteSporkResultsToFile(SporkProfile sporkProfiles[], int numProfiles,
+ int WriteSporkResultsToFile
+ (SporkProfile source[], int numProfiles,
                             int maxSponsorIndex, char *fileName);
 
 /**************************************************************************************************/

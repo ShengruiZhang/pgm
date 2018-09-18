@@ -1,7 +1,7 @@
+SurpriseEndodontics 33.64 -112.39 5.00 2
 CircleKStores 33.36 -111.88 2.50 1
 Sonic 33.42 -112.29 3.50 1
 ApplianceDoctorInc 33.80 -112.13 3.00 1
-SurpriseEndodontics 33.64 -112.39 5.00 2
 ArtisansShoe&LeatherRepair 33.34 -111.86 4.50 5
 GreatClips 33.35 -111.96 3.00 1
 NationwideVisionCenters 33.58 -111.98 2.50 1

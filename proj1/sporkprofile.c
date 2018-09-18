@@ -1,3 +1,4 @@
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -35,9 +36,53 @@
  */
 
 int ReadSporkDataFromFile
-(SporkProfile sporkProfiles[], int maxProfiles,
-                          char *fileName) {
-   return -1;
+(SporkProfile _data[], int maxProfiles,
+char *fileName)
+{
+	//printf("%s", fileName);
+	unsigned int i = 0;
+	
+	FILE *source = fopen(fileName, "r");
+	
+	//printf("%d", source);
+	
+	//perror("Error");
+	
+	char temp[100];
+	char bim[100];
+
+	while (!feof(source)) {
+	
+		fgets(temp, 100, source);
+
+		int count =0;
+	count = sscanf(temp, "%s %lf %lf %lf %d %s", 
+
+
+			_data[i].businessName, 
+			&_data[i].locX, 
+			&_data[i].locY,
+			&_data[i].avgRating, 
+			&_data[i].adLevel,
+			bim);
+
+	_data[i].isNearby = 1;
+	_data[i].isGood = 1;
+	_data[i].distMiles = 0;
+	if (count != 6) {
+
+	++i;
+	}
+	}
+	
+	//fscanf(source, "%s %lf", _data[0].businessName, &_data[0].locX);
+	//_data[0].distMiles = 2560;
+	
+	//printf("%s", _data[0].businessName);
+
+	fclose(source);
+
+	return i;
 }
 
 /**************************************************************************************************/
@@ -51,8 +96,12 @@ int ReadSporkDataFromFile
  *
  */
 void FindNearbyBusinesses
-(SporkProfile sporkProfiles[], int numProfiles,
-                          double userLocX, double userLocY, double maxDist) {
+(SporkProfile sporkProfiles[],
+				int numProfiles,
+				double userLocX, 
+				double userLocY, 
+				double maxDist)
+{	
 
 }
 
@@ -105,7 +154,20 @@ int GetIndexMaxSponsor
  *
  */
 int WriteSporkResultsToFile
-(SporkProfile sporkProfiles[], int numProfiles,
-                            int maxSponsorIndex, char *fileName) {
+(SporkProfile source[], int numProfiles, int maxSponsorIndex, char *fileName) {
+	FILE *_out = fopen(fileName, "w+");
+	for (int i = 0; i<numProfiles; ++i)
+	{
+		if (!(source[i].adLevel >2))
+		{
+			if ( (strcmp(source[i].businessName, "rubbish")!=0)){
+			fprintf(_out, "%s\t%.2f\t%.2f\n",
+					source[i].businessName,
+					source[i].avgRating,
+					source[i].distMiles);
+			}
+		}
+	}
+
    return 0;
 }

@@ -1,0 +1,14 @@
+SurpriseEndodontics	5.00	0.00
+CircleKStores	2.50	0.00
+Sonic	3.50	0.00
+ApplianceDoctorInc	3.00	0.00
+GreatClips	3.00	0.00
+NationwideVisionCenters	2.50	0.00
+UnitedStatesGovernment	2.00	0.00
+NativeBloomLandscapeandDesign	4.00	0.00
+Ray'sPizza	3.00	0.00
+PaylessCarRental	1.50	0.00
+CasualMaleXl	5.00	0.00
+Church'sChicken	3.00	0.00
+TcfBank	3.50	0.00
+BethesdaPediatrics	3.00	0.00
