@@ -1,52 +1,53 @@
 #include <iostream>
+#include <sstream>
+#include <string>
+
 typedef unsigned int uint;
 
 using namespace std;
 
+class PowerUnit {
+	public:
+		PowerUnit();
+		uint UnitAllows();
+		uint Components();
+		uint numSupplier();
+	private:
+		char Supplier[4];
+};
+
 class Card {
-	private:
-		//something here
-		uint value;
-		uint suit;
-
 	public:
-		//something here
-
+		Card();
 		Card(uint value, uint suit);
-
-		int getValue();
-		void setValue();
-		int getSuit();
-		void setSuit();
-};
-
-class Deck {
+		Card(std::string cardString);
 	private:
-		uint num_cards;
-
-	public:
-		Card _card[100];
+		uint _value;
+		uint _suit;
 };
 
-Card::Card(uint value, uint suit) {
-	this->value = value;
-	this->suit = suit;
-}
+Card::Card()
+{
+	_value = 0;
+	_suit = 0;
+};
 
-int Card::getValue() {
-	return value;
-}
+Card::Card(uint value, uint suit)
+{
+	_value = value;
+	_suit = suit;
+};
 
-int Card::getSuit() {
-	return suit;
-}
+Card::Card(std::string cardString)
+{
+	if(cardString[0] == 'k') {
+		_value = 12;
+	} else 
+	if(cardString[0] - '0' < 10) {
+		_value = cardString[0] - '0';
+	}
+};
 
 int main(void) {
-	Card _test;
-
-	cout << "Inclass-Classes & Objects & Constructor" << endl;
-
-	cout << _test.getValue() << " " << _test.getSuit() << endl;
-
 	return 0;
 }

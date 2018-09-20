@@ -1,0 +1,24 @@
+0
+0
+0
+Manufacturer: ___________ Ferrari
+Model: 062EVO
+
+1
+1
+1
+Manufacturer: ___________ Mercedes
+Model: PU106C
+
+2
+2
+2
+Manufacturer: ___________ Renault
+Model: RE18
+
+3
+3
+3
+Manufacturer: ___________ Honda
+Model: RA618H
+
