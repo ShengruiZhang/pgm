@@ -1,24 +1,12 @@
-0
-0
-0
-Manufacturer: ___________ Ferrari
+Manufacturer:    Ferrari
 Model: 062EVO
 
-1
-1
-1
-Manufacturer: ___________ Mercedes
+Manufacturer:   Mercedes
 Model: PU106C
 
-2
-2
-2
-Manufacturer: ___________ Renault
+Manufacturer:    Renault
 Model: RE18
 
-3
-3
-3
-Manufacturer: ___________ Honda
+Manufacturer:      Honda
 Model: RA618H
 

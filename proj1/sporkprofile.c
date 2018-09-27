@@ -4,8 +4,6 @@
 #include <math.h>
 #include "sporkprofile.h"
 
-/**************************************************************************************************/
-
 /* Reads up to maxProfiles Spork profiles from an input file specified by fileName. Functions reads
  * the input file line-by-line using the format:
  *
@@ -69,19 +67,11 @@ char *fileName)
 	_data[i].isNearby = 1;
 	_data[i].isGood = 1;
 	_data[i].distMiles = 0;
-	if (count != 6) {
-
-	++i;
+		if (count != 6) {
+			++i;
+		}
 	}
-	}
-	
-	//fscanf(source, "%s %lf", _data[0].businessName, &_data[0].locX);
-	//_data[0].distMiles = 2560;
-	
-	//printf("%s", _data[0].businessName);
-
 	fclose(source);
-
 	return i;
 }
 
@@ -96,13 +86,24 @@ char *fileName)
  *
  */
 void FindNearbyBusinesses
-(SporkProfile sporkProfiles[],
-				int numProfiles,
-				double userLocX, 
-				double userLocY, 
-				double maxDist)
-{	
+(SporkProfile src[],
+int numProfiles,
+double userLocX, 
+double userLocY, 
+double maxDist)
+{
+	unsigned int i = 0;
+	while(i < numProfiles)
+	{
+		printf("userLocX: %lf, userLocY: %lf, BusX: %lf, BusY: %lf", userLocX, userLocY, src[i].locX, src[i].locY);
+		src[i].distMiles = sqrt((pow((userLocX - src[i].locX), 2) + pow((userLocY - src[i].locY), 2)));
+		++i;
+		if(src[i].distMiles > maxDist) src[i].isNearby = 0;
+			else src[i].isNearby = 1;
 
+		printf("%f\n", src[i].distMiles);
+	}
+	
 }
 
 

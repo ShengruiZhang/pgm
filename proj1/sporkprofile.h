@@ -77,7 +77,7 @@ int ReadSporkDataFromFile
  *
  */
 void FindNearbyBusinesses
-(SporkProfile sporkProfiles[], int numProfiles,
+(SporkProfile src[], int numProfiles,
                         double userLocX, double userLocY, double maxDist);
 
 

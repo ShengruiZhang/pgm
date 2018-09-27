@@ -6,16 +6,6 @@ typedef unsigned int uint;
 
 using namespace std;
 
-class PowerUnit {
-	public:
-		PowerUnit();
-		uint UnitAllows();
-		uint Components();
-		uint numSupplier();
-	private:
-		char Supplier[4];
-};
-
 class Card {
 	public:
 		Card();
@@ -26,6 +16,8 @@ class Card {
 		uint _suit;
 };
 
+//Constructor can be used to initinalize members in classes. multiple constructors can be defined for initinalizing differnt
+//	members.
 Card::Card()
 {
 	_value = 0;
@@ -48,6 +40,13 @@ Card::Card(std::string cardString)
 	}
 };
 
+int card_test()
+{
+	// Members of the object can be initinalized upon defining, by putting the corresponding parameters within the ().
+	Card card_1("ks");
+}
+
 int main(void) {
+
 	return 0;
 }

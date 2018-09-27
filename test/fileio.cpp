@@ -5,6 +5,15 @@
 
 using namespace std;
 
+/****************************************************************
+ *  Function Prototype
+ */
+
+void ReadCardsFromFile(string filename);
+
+
+
+
 int main(int argc, char *argv[])
 {
 	// Declare a new input file stream
@@ -75,14 +84,15 @@ int main(int argc, char *argv[])
 
 	for (k = 0; k < 4; ++k)
 	{
+		/*
 		_pulist << setprecision(10) << k << endl;
 	       	_pulist << fixed << k << endl;
 		_pulist << scientific << k << endl;	
+		*/
+		
+		_pulist << "Manufacturer: "; 
 
-		_pulist << setfill('_');
-		_pulist << setw(25);
-		_pulist << left << "Manufacturer: "; 
-		_pulist << right << " " << mfg[k] << endl;
+		_pulist << setw(10) << right << mfg[k] << endl;
 		_pulist << "Model: " << model[k] << endl << endl;
 	}
 
@@ -93,4 +103,19 @@ int main(int argc, char *argv[])
 	// getline() preserves the format from a line of text.
 	
 	return 0;
+}
+
+void ReadCardsFromFile(string filename)
+{
+	ifstream cards;
+
+	cards.open(filename);	
+
+	if (cards.is_open()) {
+		cout << "File is opened" << endl;
+	}
+	else {
+		cout << "File can't be opened" << endl;
+	}
+
 }
