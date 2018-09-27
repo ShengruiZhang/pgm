@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
    /* FOR TEST PURPOSE*/
    /*
    if( argc != 7 ) {
-      printf("Usage: FIXME\n");
+      printf("Usage: \n");
       return EXIT_FAILURE;
    }
    */
@@ -42,7 +42,6 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
    }
 	 
-   // FIXME: Convert command line arguments for user's x and y location, maximum distance, and
    // minimum rating to variables userLocX, userLocY, maxDist, and minRating.
    //printf("Converting arguments\n");
    //printf("argv[1]: %s", argv[1]);
