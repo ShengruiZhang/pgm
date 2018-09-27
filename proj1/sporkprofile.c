@@ -33,12 +33,14 @@
  *
  */
 
+/* This function has been finished */
 int ReadSporkDataFromFile
 (SporkProfile _data[], int maxProfiles,
 char *fileName)
 {
 	//printf("%s", fileName);
 	unsigned int i = 0;
+	unsigned int counter = 0;
 	
 	FILE *source = fopen(fileName, "r");
 	
@@ -54,9 +56,7 @@ char *fileName)
 		fgets(temp, 100, source);
 
 		int count =0;
-	count = sscanf(temp, "%s %lf %lf %lf %d %s", 
-
-
+		count = sscanf(temp, "%s %lf %lf %lf %d %s", 
 			_data[i].businessName, 
 			&_data[i].locX, 
 			&_data[i].locY,
@@ -64,13 +64,20 @@ char *fileName)
 			&_data[i].adLevel,
 			bim);
 
-	_data[i].isNearby = 1;
-	_data[i].isGood = 1;
-	_data[i].distMiles = 0;
-		if (count != 6) {
-			++i;
+		_data[i].isNearby = 0;
+		_data[i].isGood = 0;
+		_data[i].distMiles = 0;
+		if ((count != 5) | ((_data[i].adLevel != 0) & (_data[i].adLevel != 1) & (_data[i].adLevel != 2))) {
+				counter = i;
+				printf("Not-formatted line: %d", counter);
+		} else {
+		++i;
+		}
+		if (i == MAX_SPORK_PROFILES) {
+			break;
 		}
 	}
+	
 	fclose(source);
 	return i;
 }
@@ -85,6 +92,7 @@ char *fileName)
  * maxDist: Indicates the maxmimum distance between the user and a nearby business
  *
  */
+/* This funciton has been completed */
 void FindNearbyBusinesses
 (SporkProfile src[],
 int numProfiles,
@@ -95,13 +103,14 @@ double maxDist)
 	unsigned int i = 0;
 	while(i < numProfiles)
 	{
-		printf("userLocX: %lf, userLocY: %lf, BusX: %lf, BusY: %lf", userLocX, userLocY, src[i].locX, src[i].locY);
+		//printf("userLocX: %lf, userLocY: %lf, BusX: %lf, BusY: %lf", userLocX, userLocY, src[i].locX, src[i].locY);
 		src[i].distMiles = sqrt((pow((userLocX - src[i].locX), 2) + pow((userLocY - src[i].locY), 2)));
+		if(src[i].distMiles <= maxDist) src[i].isNearby = 1;
+			else src[i].isNearby = 0;
 		++i;
-		if(src[i].distMiles > maxDist) src[i].isNearby = 0;
-			else src[i].isNearby = 1;
 
-		printf("%f\n", src[i].distMiles);
+		/// Testing
+		printf("Miles: %f, nearby: %d\n", src[i].distMiles, src[i].isNearby);
 	}
 	
 }
@@ -115,10 +124,16 @@ double maxDist)
  * equal to minRating, and false otherwise.
  *
  */
+/* This function has been completed */
 void FindGoodBusinesses
-(SporkProfile sporkProfiles[], int numProfiles,
+(SporkProfile src[], int numProfiles,
                         double minRating) {
-   
+	unsigned int i = 0;
+	for (i = 0; i < numProfiles; ++i)
+	{
+		if (src[i].avgRating >= minRating) src[i].isGood = 1;
+			else src[i].isGood = 0;
+	}
 }
 
 /**************************************************************************************************/
@@ -131,8 +146,21 @@ void FindGoodBusinesses
  */
 
 int GetIndexMaxSponsor
-(SporkProfile sporkProfiles[], int numProfiles) {
-   return -1;
+(SporkProfile src[], int numProfiles) {
+	unsigned int max = 0;
+	unsigned int i = 0;
+	unsigned int index = 0;
+
+	for (i = 0; i < numProfiles; ++i)
+	{
+		//printf("ad: %d\n", src[i].adLevel);
+		if ((src[i].adLevel > max) & (src[i].isNearby == 1) & (src[i].isGood == 1)) {
+			max = src[i].adLevel;
+			index = i;
+		}
+	}
+	
+   return index;
 }
 
 /**************************************************************************************************/
@@ -156,17 +184,29 @@ int GetIndexMaxSponsor
  */
 int WriteSporkResultsToFile
 (SporkProfile source[], int numProfiles, int maxSponsorIndex, char *fileName) {
+	unsigned int i;
 	FILE *_out = fopen(fileName, "w+");
-	for (int i = 0; i<numProfiles; ++i)
+	if (_out == NULL) return -1;
+
+	i = maxSponsorIndex;
+	//fprintf(_out, "maxindex:\n");
+	if ((source[i].isNearby == 1) & (source[i].isGood == 1))
 	{
-		if (!(source[i].adLevel >2))
-		{
-			if ( (strcmp(source[i].businessName, "rubbish")!=0)){
+	fprintf(_out, "%s\t%.2f\t%.2f\n",
+					source[i].businessName,
+					source[i].avgRating,
+					source[i].distMiles);
+	}
+
+	//fprintf(_out, "list:\n");
+	for (i = 0; i<numProfiles; ++i)
+	{
+		if (i == maxSponsorIndex) ++i;
+		if ((source[i].isNearby == 1) & (source[i].isGood == 1)){
 			fprintf(_out, "%s\t%.2f\t%.2f\n",
 					source[i].businessName,
 					source[i].avgRating,
 					source[i].distMiles);
-			}
 		}
 	}
 

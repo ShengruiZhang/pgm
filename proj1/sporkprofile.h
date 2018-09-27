@@ -8,6 +8,7 @@
 /**************************************************************************************************/
 
 #define MAX_BUSINESSNAME_LEN 100
+#define MAX_SPORK_PROFILES 500
 
 /**************************************************************************************************/
 
@@ -90,7 +91,7 @@ void FindNearbyBusinesses
  *
  */
 void FindGoodBusinesses
-(SporkProfile sporkProfiles[], int numProfiles,
+(SporkProfile src[], int numProfiles,
                         double minRating);
 
 /**************************************************************************************************/
@@ -103,7 +104,7 @@ void FindGoodBusinesses
  */
 
 int GetIndexMaxSponsor
-(SporkProfile sporkProfiles[], int numProfiles);
+(SporkProfile src[], int numProfiles);
 
 /**************************************************************************************************/
 

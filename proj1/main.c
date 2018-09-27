@@ -44,11 +44,19 @@ int main(int argc, char *argv[]) {
 	 
    // FIXME: Convert command line arguments for user's x and y location, maximum distance, and
    // minimum rating to variables userLocX, userLocY, maxDist, and minRating.
-   printf("Converting arguments\n");
-   sscanf(argv[4], "%lf", &userLocX);
-   sscanf(argv[5], "%lf", &userLocY);
-   sscanf(argv[6], "%lf", &maxDistMiles);
-   sscanf(argv[7], "%lf", &minAvgRating);
+   //printf("Converting arguments\n");
+   //printf("argv[1]: %s", argv[1]);
+   userLocX = atof(argv[3]);
+   userLocY = atof(argv[4]);
+   maxDistMiles = atof(argv[5]);
+   minAvgRating = atof(argv[6]);
+   /*
+   sscanf(argv[3], "%lf", &userLocX);
+   sscanf(argv[4], "%lf", &userLocY);
+   sscanf(argv[5], "%lf", &maxDistMiles);
+   sscanf(argv[6], "%lf", &minAvgRating);
+   */
+   //printf("userLocation X: %lf\n", userLocX);
    
    FindNearbyBusinesses(sporkProfiles, numProfiles, userLocX, userLocY, maxDistMiles);
    FindGoodBusinesses(sporkProfiles, numProfiles, minAvgRating);
@@ -61,7 +69,6 @@ int main(int argc, char *argv[]) {
    }
 
 	/* TESTING PURPOSE */
-	
 /* 	unsigned int i = 0;
 	while (i<numProfiles) {
 		printf("%d",i);
@@ -74,8 +81,6 @@ int main(int argc, char *argv[]) {
 	      sporkProfiles[i].adLevel);
 	++i;
 	} */
-
-	
    return 0;
 }
 
