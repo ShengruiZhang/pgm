@@ -1,10 +1,3 @@
-//----------------------------------------------------------------------//
-// Author:         
-// Net ID:         
-// Date:           
-//
-//----------------------------------------------------------------------//
-
 #ifndef DECK_H
 #define DECK_H
 
@@ -13,13 +6,11 @@
 class Deck{
 private:
     unsigned int _num_cards;
-    Card _cards[52];
+    Card* _cards;
 public:
     void ReadCardsFromFile(std::string fileName);
-
-	unsigned int GetNumCards() { return _num_cards; };
-	void SetNumCards(unsigned int num_cards) { _num_cards = num_cards; };
+    unsigned int GetNumCards() { return _num_cards; };
+    void SetNumCards(unsigned int num_cards) { _num_cards = num_cards; };
     void discard();
 };
 #endif
-
