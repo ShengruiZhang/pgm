@@ -20,10 +20,11 @@ ShoppingCart::ShoppingCart(string _name, string _date)
 }
 
 ////////////////////////////////////////////////////////
-// TODO
+//
 void ShoppingCart::AddItem(ItemToPurchase _newItem)
 {
 	cartItems.push_back(_newItem);
+
 }
 
 
@@ -31,24 +32,39 @@ void ShoppingCart::AddItem(ItemToPurchase _newItem)
 
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
-// TODO unclearified how to remove?
+//  unclearified how to remove?
 void ShoppingCart::RemoveItem(string _Item)
 {
 	//vector <ItemToPurchase> target;
 	//vector <ItemToPurchase>::iterator i;
-	/*
-	for (i; i < cartItems.size(); ++i)
+
+	string temp;
+	uint flag = 0;
+	for (uint i = 0; i < cartItems.size(); ++i)
 	{
-		if(  (  cartItems[i].GetName() )  .compare(_Item) == 0         )
+		//cout << cartItems[i].GetName() << endl;
+		temp = cartItems[i].GetName();
+		//cout << "The current item is: " << temp << "Item to rm: " << _Item << endl;
+		if(/*temp.compare(_Item) == 1*/ temp == _Item)
 		{
-			cout << "Found it." << endl;
-			cartItems.erase(i);
+			this->__total -= cartItems[i].GetQuantity();
+			//cout << "Inside if " << cartItems[i].GetName() << endl;
+
+
+			cartItems[i].SetName("");
+
+			cartItems[i].SetDescription("");
+			cartItems[i].SetPrice(0);
+			cartItems[i].SetQuantity(0);
+			flag = 1;
 		}
-		else {
-			cout << "Not Found." << endl;
+
+
 		}
+		if (flag == 0) {
+			cout << "Item not found in cart. Nothing removed." << endl;
 	}
-	*/
+
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -56,9 +72,33 @@ void ShoppingCart::RemoveItem(string _Item)
 
 
 
-// TODO unclearified what to modigy
+//  unclearified what to modigy
 void ShoppingCart::ModifyItem(ItemToPurchase _Item)
 {
+	string temp;
+	string temp2;
+	uint flag = 0;
+	for (uint i = 0; i < cartItems.size(); ++i)
+	{
+		temp = cartItems[i].GetName();
+		temp2 = _Item.GetName();
+		//cout << cartItems[i].GetName() << " " << _Item.GetName() << endl;
+		if(/*temp.compare(_Item) == 1*/ temp == temp2)
+		{
+			this->__total -= cartItems[i].GetQuantity();
+			//cout << "Total: " << __total<<" old " << cartItems[i].GetQuantity();
+			cartItems[i].SetQuantity(_Item.GetQuantity());
+			this->__total += cartItems[i].GetQuantity();
+			//cout << "Total: " << __total<<" new " << cartItems[i].GetQuantity();
+
+			flag = 1;
+		}
+
+
+		}
+		if (flag == 0) {
+			cout << "Item not found in cart. Nothing modified." << endl;
+	}
 }
 
 
@@ -69,6 +109,7 @@ uint ShoppingCart::GetNumItemsInCart()
 	{
 		grandcount += cartItems[h].GetQuantity();
 	}
+	__total = grandcount;
 	return grandcount;
 }
 ///////////////////////////////////////////////////////////////////
@@ -96,7 +137,7 @@ void ShoppingCart::PrintTotal()
 
 	cout << this->customerName << "'s Shopping Cart - " << this->currentDate << endl;
 	//cout << "Number of Items: " << GetNumItemsInCart() << endl;
-	cout << "Number of Items: " << ShoppingCart::GetNumItemsInCart() << endl << endl;
+	cout << "Number of Items: " << __total/*ShoppingCart::GetNumItemsInCart()*/ << endl << endl;
 
 	//if (cartItems.size() == 0) {
 	if (cartItems.empty()) {
@@ -105,9 +146,11 @@ void ShoppingCart::PrintTotal()
 
 	for (uint i = 0; i < cartItems.size(); ++i)
 	{
+		if (cartItems[i].GetQuantity() != 0) {
 		cout << cartItems[i].GetName() << " " << cartItems[i].GetQuantity()
 			<< " @ $" << cartItems[i].GetPrice() << " = $" << cartItems[i].CalcSubTotal() << endl;
 		grandTotal += cartItems[i].CalcSubTotal();
+	}
 	}
 
 	cout << endl << "Total: $" << grandTotal << endl << endl;

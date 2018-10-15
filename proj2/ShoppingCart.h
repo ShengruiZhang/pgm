@@ -31,6 +31,8 @@ class ShoppingCart{
 		void PrintTotal();
 
 		void PrintDescriptions();
+
+		uint __total = 0;
 		/*
 		{
 			std::vector <int> :: iterator count;

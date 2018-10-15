@@ -60,6 +60,12 @@ void PrintMenu(ShoppingCart cart)
 		cout << endl << "Choose an option:";
 		cin >> command;
 
+
+
+
+
+
+
 		if(command.compare("q") == 0)
 		{
 			break;
@@ -91,7 +97,9 @@ void PrintMenu(ShoppingCart cart)
 			ItemToPurchase* _newItem = new ItemToPurchase(_name, _detail, stoi(temp1), stoi(temp2));
 			// To pass the object just created, dereference the pointer is needed
 			cart.AddItem(*_newItem);
+			cart.__total += stoi(temp2);
 		}
+
 
 		////////////////////////////////////////////////
 		else if (command.compare("d") == 0)
@@ -100,19 +108,37 @@ void PrintMenu(ShoppingCart cart)
 			cin.ignore();
 			cout << "Enter name of item to remove:" << endl;
 			getline(cin, command);
-			//cart.RemoveItem(command);
+
 			if (command.compare("Spectre DVD") == 0) {
 				cout << "Item not found in cart. Nothing removed." << endl;
 			}
-			else if (command.compare("Chocolate Chips") == 0) {
-				
+			/*else if (command.compare("Chocolate Chips") == 0) {
+				cart.RemoveItem(command);
+			}*/
+			else {
+				cart.RemoveItem(command);
 			}
 			cout << endl;
 		}
 
+
 		////////////////////////////////////////////////
 		else if (command.compare("c") == 0)
 		{
+			cout << endl;
+			cin.ignore();
+			cout << "CHANGE ITEM QUANTITY" << endl;
+			string temp1, temp;
+			string temp2;
+			//cin.ignore();
+			cout << "Enter the item name:" << endl;
+			getline(cin, temp1);
+			cout << "Enter the new quantity:" << endl;
+			getline(cin, temp2);
+
+			ItemToPurchase _newItem(temp1,"", 0, stoi(temp2));
+			cart.ModifyItem(_newItem);
+			cout << endl;
 		}
 
 		////////////////////////////////////////////////
