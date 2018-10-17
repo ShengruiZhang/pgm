@@ -17,7 +17,7 @@ class PlaylistNode
 		
 	public:
 		
-		PlaylistNode();
+		//PlaylistNode();
 		
 		
 		std::string GetID() { return uniqueID; }
@@ -30,6 +30,8 @@ class PlaylistNode
 		PlaylistNode* GetNext() { return nextNodePtr; }
 		
 		void PrintPlaylistNode();
+
+		std::string _title;
 };
 
 #endif
