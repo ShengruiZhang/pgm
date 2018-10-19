@@ -45,7 +45,42 @@ void PlaylistNode::PrintPlaylistNode()
 // END OF FUNCTION///////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+PlaylistNode* InsertAfter(PlaylistNode* head, PlaylistNode* song)
+{
+	PlaylistNode* temp = head;
 
+	if(head->next == NULL)
+	{
+		head->next = song;
+	}
+	else if(head->next != NULL)
+	{
+		while(1)
+		{
+			if(temp->next == NULL)
+			{
+				temp->next = song;
+				// debug
+				cout << "Song added" << endl;
+
+				return temp->next;
+			}
+			else if(temp->next != NULL)
+			{
+				temp = temp->next;
+				//debug
+				cout << "temp = temp next" << endl;
+			}
+		}
+	}
+}
+// END OF FUNCTION///////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////
 /////////////////////////////////////////////////
 uint PlaylistNode::_RemoveSong(PlaylistNode* head, string target)
 {
