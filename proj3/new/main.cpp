@@ -19,7 +19,7 @@ int main(void)
 	// Initilize the list head
 	PlaylistNode* _head = new PlaylistNode("_PlaylistHead", "none", "none", 0);
 
-	_head->SetNext(NULL);
+	_head->SetNext(nullptr);
 
 	cout << "Enter playlist's title:" << endl << endl;
 	getline(cin, _head->_title);
@@ -156,19 +156,24 @@ void PrintMenu(PlaylistNode* head)
 
 			//cout << endl;
 		}
+
+
+		////////////////////////////////////////////////
 		else if (command.compare("s") == 0)
 		{
 			cout << "OUTPUT SONGS BY SPECIFIC ARTIST" << endl;
 			cout << "Enter artist's name:" << endl;
+			cin.ignore();
 			getline(cin, command);
-
+			cout << endl;
 			uint counter = 0;
-			PlaylistNode* __temp = 0;
-			while(__temp != NULL)
+			PlaylistNode* __temp = head;
+			while(__temp != nullptr)
 			{
 				if(__temp->GetArtistName() == command)
 				{
 					cout << counter << "." << endl;
+					cout << "Unique ID: " << __temp->GetID() << endl;
 					cout << "Song Name: " << __temp->GetSongName() << endl;
 					cout << "Artist Name: " << command << endl;
 					cout << "Song Length (in seconds): " << __temp->GetSongLength() << endl;
@@ -189,6 +194,25 @@ void PrintMenu(PlaylistNode* head)
 
 
 		////////////////////////////////////////////////
+		else if (command.compare("t") == 0)
+		{
+			cout << "OUTPUT TOTAL TIME OF PLAYLIST (IN SECONDS)" << endl;
+			PlaylistNode* __temp = head;
+			uint total_time = 0;
+			while(__temp != nullptr)
+			{
+				total_time += __temp->GetSongLength();
+				__temp = __temp->GetNext();
+			}
+			cout << "Total time: " << total_time << " seconds" << endl;
+			cout << endl;
+		}
+
+
+
+
+
+		////////////////////////////////////////////////
 		else {
 			flag = 0;
 		}
@@ -200,28 +224,28 @@ void SongAdd(PlaylistNode* head, PlaylistNode* newsong)
 {
 	PlaylistNode* temp = head;
 
-	if(head->GetNext() == NULL)
+	if(head->GetNext() == nullptr)
 	{
 		head->SetNext(newsong);
 
-		newsong->SetNext(NULL);
+		newsong->SetNext(nullptr);
 
 		//debug
 		//cout << "after head" << endl;
 
 	}
-	else if(head->GetNext() != NULL)
+	else if(head->GetNext() != nullptr)
 	{
 		temp = head->GetNext();
 
 		while(1)
 		{
-			if(temp->GetNext() == NULL)
+			if(temp->GetNext() == nullptr)
 			{
 				//debug
 				//cout << "Linking to the list" << endl;
 				temp->SetNext(newsong);
-				newsong->SetNext(NULL);
+				newsong->SetNext(nullptr);
 				//debug
 				//cout << "Link to the list" << endl;
 				break;
@@ -239,19 +263,19 @@ void SongAdd(PlaylistNode* head, PlaylistNode* newsong)
 void SongSwap(PlaylistNode* head, uint _old, uint _new)
 {
 	PlaylistNode* temp = head;
-	PlaylistNode* temp_old = NULL;
-	PlaylistNode* last = NULL;
-	PlaylistNode* last_2 = NULL;
+	PlaylistNode* temp_old = nullptr;
+	PlaylistNode* last = nullptr;
+	PlaylistNode* last_2 = nullptr;
 	uint counter = 0;
 
-	if(head->GetNext() == NULL) { cout<<"Empty List. Exiting"<<endl; return; }
+	if(head->GetNext() == nullptr) { cout<<"Empty List. Exiting"<<endl; return; }
 
 	// debug
 	//cout << endl;
 
 	//cout << _old << " " << _new << endl;
 
-	while(temp != NULL)
+	while(temp != nullptr)
 	{
 		// debug
 		//cout << temp->GetID() << endl;
@@ -272,12 +296,12 @@ void SongSwap(PlaylistNode* head, uint _old, uint _new)
 	}
 
 	//debug
-cout << temp->GetID() << endl;
+//cout << temp->GetID() << endl;
 
 
 	temp = head;
 	counter = 0;
-	while(temp != NULL)
+	while(temp != nullptr)
 	{
 		if(counter != _new)
 		{
@@ -292,8 +316,27 @@ cout << temp->GetID() << endl;
 	}
 
 	//debug
-cout << temp->GetID() << endl;
+	///cout << temp->GetID() << endl;
+		if ((temp_old != last_2) && (_new < _old))
+		{
+			last->SetNext(temp_old->GetNext());
+			temp_old->SetNext(temp);
+			last_2->InsertAfter(temp_old);
+		}
+		else if(temp_old != last_2)
+		{
+			last->SetNext(temp_old->GetNext());
+			temp_old->SetNext(temp->GetNext());
+			temp->InsertAfter(temp_old);
+		}
+		else if(temp_old == last_2)
+		{
+			last->SetNext(temp_old->GetNext());
+			last_2->SetNext(temp->GetNext());
+			temp->InsertAfter(last_2);
+		}
 
+/*
 	PlaylistNode* _temp = new PlaylistNode(temp->GetID(),
 						temp->GetSongName(), temp->GetArtistName(), temp->GetSongLength());
 	temp->SetID(temp_old->GetID());
@@ -305,6 +348,7 @@ cout << temp->GetID() << endl;
 	temp_old->SetName(_temp->GetArtistName());
 	temp_old->SetSong(_temp->GetSongName());
 	temp_old->SetLength(_temp->GetSongLength());
+	*/
 
 /*
 	last->SetNext(temp);
@@ -313,9 +357,9 @@ cout << temp->GetID() << endl;
 	last_2->SetNext(temp_old);
 	*/
 	//debug
-	cout << "after swap: " << temp->GetID() << endl;
+	//cout << "after swap: " << temp->GetID() << endl;
 	//debug
-cout << temp_old->GetID() << endl;
+	//cout << temp_old->GetID() << endl;
 
 	cout << "\"" << temp_old->GetSongName() << "\" moved to position " << _new << endl;
 
@@ -323,7 +367,7 @@ cout << temp_old->GetID() << endl;
 
 uint PrintPlaylist(PlaylistNode* head)
 {
-	if(head->GetNext() == NULL)
+	if(head->GetNext() == nullptr)
 	{ cout << "Playlist is empty" << endl << endl; return 0; }
 
 	uint i = 1;
@@ -342,7 +386,7 @@ uint PrintPlaylist(PlaylistNode* head)
 		temp = temp->GetNext();
 		++i;
 
-	} while(temp != NULL);
+	} while(temp != nullptr);
 
 	return 1;
 }
@@ -353,11 +397,11 @@ uint PlaylistRemove(PlaylistNode* head, string songID)
 	PlaylistNode* temp = head;
 	PlaylistNode* last = head;
 
-	if(temp->GetNext() == NULL) { return 0; }
+	if(temp->GetNext() == nullptr) { return 0; }
 
 	temp = head->GetNext();
 
-	while(temp != NULL)
+	while(temp != nullptr)
 	{
 		//cout<< temp->GetID();
 		if(temp->GetID() == songID)

@@ -37,7 +37,7 @@ class PlaylistNode
 
 		void PrintPlaylistNode();
 
-		PlaylistNode* InsertAfter(PlaylistNode* head, PlaylistNode* song);
+		void InsertAfter(PlaylistNode* song) { nextNodePtr = song; }
 		uint _RemoveSong(PlaylistNode* head, std::string target);
 
 		// The title of the playlist
