@@ -51,31 +51,40 @@ PlaylistNode* InsertAfter(PlaylistNode* head, PlaylistNode* song)
 {
 	PlaylistNode* temp = head;
 
-	if(head->next == NULL)
+	if(head->GetNext() == NULL)
 	{
-		head->next = song;
+		head->SetNext(song);
 	}
-	else if(head->next != NULL)
+	else if(head->GetNext() != NULL)
 	{
 		while(1)
 		{
-			if(temp->next == NULL)
+			if(temp->GetNext() == NULL)
 			{
-				temp->next = song;
+				temp->SetNext(song);
 				// debug
 				cout << "Song added" << endl;
 
-				return temp->next;
+				return temp->GetNext();
 			}
-			else if(temp->next != NULL)
+			else if(temp->GetNext() != NULL)
 			{
-				temp = temp->next;
+				temp = temp->GetNext();
 				//debug
 				cout << "temp = temp next" << endl;
 			}
 		}
 	}
+	
+	return NULL;
 }
+// END OF FUNCTION///////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+
 // END OF FUNCTION///////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 
