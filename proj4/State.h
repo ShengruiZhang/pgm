@@ -7,15 +7,15 @@
  * NetID: Your NetID
  * Date:
  *
- * Description: (enter your description of what this file does).
+ * Description: class holds the values for  vehicle position, forward (x1),vehicle position, left/right (x2),tire angle (radians) (x3),heading (radians) (x4), and time stamp at which this state is measured.
  */
-
+using namespace std;
 // M_PI and other variables are defined in here
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
 #include <math.h>
-
+#include <string>
 // the MAX and MIN values for tire angle are used
 // in the setTireAngle method
 #define MAX_TIRE_ANGLE 0.5236
@@ -51,6 +51,7 @@ public:
     void setHeading(double heading); // sets the _heading
     double getTimeStamp() const; // gets the _timestamp
     void setTimeStamp(double timestamp); // sets the _timestamp
+
 };
 
 #endif // STATE_H

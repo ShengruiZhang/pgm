@@ -1,6 +1,18 @@
 #ifndef INPUT_H
 #define INPUT_H
-
+/*************/
+/*
+ * File: Input.h
+ * Author: Your Name
+ * NetID: Your NetID
+ * Date:
+ *
+ * Description: The Input class holds the values for the u variables used in the kinematic model.
+ */
+using namespace std;
+/* Note: comments in this file thusfar are insufficient for
+   a perfect grade in comments */
+#include <string>
 // M_PI and other variables are defined in here
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
@@ -31,6 +43,7 @@ public:
     void setTireAngleRate(double angle); // sets the _tire_angle_rate
     double getTimeStamp() const; // gets the _timestamp
     void setTimeStamp(double timestamp); // sets the _timestamp
+
 };
 
 #endif // INPUT_H
