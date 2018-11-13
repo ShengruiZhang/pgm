@@ -1,0 +1,14 @@
+#ifndef VEHICLESIMULATOR_H
+#define VEHICLESIMULATOR_H
+
+#include "Vehicle.h"
+#incldue "Input.h"
+#include "State.h"
+
+typedef unsigned int uint;
+
+class VehicleSimulator
+{
+
+}
+#endif

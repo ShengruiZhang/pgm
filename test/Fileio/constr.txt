@@ -1,0 +1,9 @@
+Scuderia_Ferrari SF71-H 062_EVO 530
+Force_India_ F1_Team VJM11 M09_EQ_Power+ 106
+Hass_F1_Team VF-18 062_EVO 84
+McLaren_F1_Team MCL33 R.E.18 62
+Mercedes_AMG_Petronas F1_W09_EQ_Power+ M09_EQ_Power+ 585
+Aston_Martin_Red_Bull_Racing RB14 R.E.18 362
+Renault_Sport_Formula_One_Team R.S.18 R.E.18 114
+Alfa_Romeo_Sauber_F1_Team C37 062_EVO 36
+Williams_Martini_Racing FW41 M09_EQ_Power 7
