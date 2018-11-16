@@ -1,0 +1,10 @@
+Goal:	build a graph
+		calculate metrics
+		output
+
+Approach:	define "user" class to store username and following and follower
+			building the graph while storing all users into a unordered map from STL
+				std::unordered_map <User, > example
+				
+Detail:		for each user, follower is usually more than one. so it has to be 
+				a list. What list?
