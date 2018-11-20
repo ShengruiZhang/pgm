@@ -1,32 +1,49 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #include <unordered_map>
  
+class followers
+{
+	private:
+
+	public:
+		std::vector<std::string> follower;
+		unsigned int count;
+};
+
+using namespace std;
+
 int main()
 {
-    // Create an unordered_map of three strings (that map to strings)
-    std::unordered_map<std::string, std::string> u = {
-        {"RED",		"#FF0000"},
-        {"GREEN",	"#00FF00"},
-        {"BLUE",	"#0000FF"}
-    };
- 
- 
-    /*
-	// Iterate and print keys and values of unordered_map
-    for( const auto& n : u ) {
-        std::cout << "Key:[" << n.first << "] Value:[" << n.second << "] Product ID:[" << n.third << "]" << std::endl;;
-    }
-	*/
- 
-    // Add two new entries to the unordered_map
-    u["BLACK"] = "#000000";
-    u["WHITE"] = "#FFFFFF";
-	u["FUCK"] = "Sandler";
- 
-    // Output values by key
-    std::cout << "The HEX of color RED is:[" << u["RED"] << "]\n";
-    std::cout << "The HEX of color BLACK is:[" << u["FUCK"] << "]\n";
+	unordered_map <string, followers> test1;
+	//unordered_map <string, int> test1;
 
-    return 0;
+	string subA = "microsoft";
+	string subB = "apple";
+	string subC = "amazon";
+	string subD = "zowie";
+	string subE = "acer";
+
+	followers follow1;
+	follow1.count = 1005;
+	follow1.follower.push_back(subA);
+	follow1.follower.push_back(subB);
+	follow1.follower.push_back(subC);
+	follow1.follower.push_back(subD);
+	follow1.follower.push_back(subE);
+
+	test1.insert( {"Surface", follow1} );
+
+	followers output;
+	output = test1.at("Surface");
+
+	cout << output.follower.at(1) << endl;
+
+	for(int i = 0; i < output.follower.size(); ++i)
+	{
+		cout << output.follower.at(i) << endl;
+	}
+
+	return 0;
 }
