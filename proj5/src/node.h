@@ -6,10 +6,13 @@
 #include <string>
 #include <vector>
 
+typedef unsigned int uint;
 /*-------------------------------------------------------------------------------*/
 class Node {
 	private:
 	public:
+		uint CNT_Follower;
+
 		std::string Username;
 		std::vector <std::string> IncomingEdge;
 };

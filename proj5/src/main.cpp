@@ -26,7 +26,7 @@
 #define DEBUG_GETLINE 1
 #define DEBUG_INPUT_COUNT 1
 #define DEBUG_SEARCH_MATCHING 1
-#define DEBUG_PRINT_LIST 1
+#define DEBUG_PRINT_LIST 0
 #define DEBUG_NODE 1
 
 #if !DEBUG_FILE_INPUTING
@@ -75,6 +75,18 @@ int main(int argc, char *argv[]) {
 	// Read the input file
 	ReadingFile(MainList, MainNode, inputFileName);
 
+	// Calculate the count of followers
+	for(uint i = 0; i < MainNode.size(); ++i)
+	{
+		MainNode.at(i).CNT_Follower = MainNode.at(i).IncomingEdge.size();
+#if DEBUG_NODE
+		cout << "Username: "
+			<< MainNode.at(i).Username
+			<< " has " << MainNode.at(i).CNT_Follower
+			<< " followers." << endl;
+#endif
+	}
+
 #if DEBUG_PRINT_LIST
 	PrintingList(MainList);
 #endif
@@ -122,6 +134,9 @@ uint ReadingFile( unordered_map<string, Edge> &MainList,
 	Edge temp_Edge;
 	Node temp_Node;
 	auto search_match = MainList.find("null");
+
+	uint node_flag = 0;
+	uint node_i = 0;
 
 #if DEBUG_INPUT
 	cout << "Input string steam created." << endl;
@@ -229,34 +244,76 @@ uint ReadingFile( unordered_map<string, Edge> &MainList,
 		// Clear temp
 		temp_Node.Username.clear();
 		temp_Node.IncomingEdge.clear();
+		node_i = 999999;
+		node_flag = 0;
 
-		temp_Node.Username = Username_temp;
+		temp_Node.Username = UserFollowing_temp;
+		for(uint i = 0; i < MainNode.size(); ++i)
+		{
+#if DEBUG_NODE
+			cout << endl << "Node Test: " << endl;
+			cout << MainNode.at(i).Username << endl;
+#endif
+			if(MainNode.at(i).Username == UserFollowing_temp)
+			{
+				// Found existing
+				node_flag = 1;
+				node_i = i;
+				break;
+			}
+			else
+			{
+				// Doesn't exist
+				node_flag = 0;
+				node_i = 999;
+			}
+		}
 
-		if( find(MainNode.begin(),
-			MainNode.end(), Username_temp) == MainNode.end())
+		
+#if DEBUG_NODE
+		cout << endl << "Node operation." << endl;
+		cout << "i: " << node_i << endl;
+#endif
+		if(!node_flag)
 		{// When Username doesn't exist in MainNode yet
 #if DEBUG_NODE
-			cout << "Username: " << Username_temp
+			cout << "Username: " << UserFollowing_temp
 				<< " doesn't exist yet."
 				<< " Creating new entry in MainNode." << endl;
 #endif
 			MainNode.push_back(temp_Node);
 			// Put the follower of Username into the node member
-			MainNode.at(Username_temp).
-				IncomingEdge.push_back(UserFollowing_temp);
+			MainNode.back().
+				IncomingEdge.push_back(Username_temp);
 #if DEBUG_NODE
-			cout << "Username; " << Username_temp
+			cout << "Username; " << UserFollowing_temp
 				<< " has follower: "
-				<< MainNode.at(Username_temp).
+				<< MainNode.back().
 				IncomingEdge.back() << endl;
 #endif
 		}
 		else
 		{// Username already existed in MainNode
+#if DEBUG_NODE
+			cout << "Username: " << UserFollowing_temp
+				<< " has already existed in vector."
+				<< " Adding it to current vector." << endl;
+#endif
+			MainNode.at(node_i).IncomingEdge.
+				push_back(Username_temp);
+
+#if DEBUG_NODE
+			cout << "Username: " << UserFollowing_temp
+				<< " has a new follower: "
+				<< MainNode.at(node_i).IncomingEdge.
+				back() << endl;
+#endif
+
 		}
 
 	}
 	inp_stream.close();
+
 	return 1;
 }
 
