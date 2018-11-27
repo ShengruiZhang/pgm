@@ -1,7 +1,7 @@
 // This is the main program
 
 #include "Graph.h"
-#include "Node.h"
+#include "node.h"
 
 #include <iostream>
 
@@ -14,20 +14,14 @@
 #include <unordered_map>
 #include <algorithm> // To use std::find
 
-#define GLOBAL_NO_DEBUG 0
-
-#define DEBUG_FILE_INPUTING 1
+#define GLOBAL_NO_DEBUG 1
 
 #if GLOBAL_NO_DEBUG
 #define DEBUG_FILE_INPUTING 0
+#else
+#define DEBUG_FILE_INPUTING 1
 #endif
 
-#define DEBUG_INPUT 1
-#define DEBUG_GETLINE 1
-#define DEBUG_INPUT_COUNT 1
-#define DEBUG_SEARCH_MATCHING 1
-#define DEBUG_PRINT_LIST 0
-#define DEBUG_NODE 1
 
 #if !DEBUG_FILE_INPUTING
 #define DEBUG_INPUT 0
@@ -36,6 +30,13 @@
 #define DEBUG_SEARCH_MATCHING 0
 #define DEBUG_PRINT_LIST 0
 #define DEBUG_NODE 0
+#else
+#define DEBUG_INPUT 1
+#define DEBUG_GETLINE 1
+#define DEBUG_INPUT_COUNT 1
+#define DEBUG_SEARCH_MATCHING 1
+#define DEBUG_PRINT_LIST 0
+#define DEBUG_NODE 1
 #endif
 
 
@@ -95,12 +96,26 @@ int main(int argc, char *argv[]) {
 	// Nodes to be visited will be added to the queue
 	// Use push_back to add nodes to the end of the vector
 	// Use vector.erase(vector.begin()) to pop the first element
+	
+
+
+
+
+
+
+
+
+
+	/*----------------------------------------------------------*/
+	ofstream oup_stream;
+	oup_stream.open(outputFileName);
+	oup_stream.close();
 	return 0;
 }
 
 
 
-uint ReadingFile( unordered_map<string, Edge> &MainList, 
+uint ReadingFile( unordered_map<string, Edge> &MainList,
 		vector<Node> &MainNode, string inputFileName)
 {
 #if DEBUG_INPUT_COUNT
@@ -269,7 +284,7 @@ uint ReadingFile( unordered_map<string, Edge> &MainList,
 			}
 		}
 
-		
+
 #if DEBUG_NODE
 		cout << endl << "Node operation." << endl;
 		cout << "i: " << node_i << endl;
