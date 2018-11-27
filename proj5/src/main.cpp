@@ -1,6 +1,7 @@
-// Main funciton
+// This is the main program
+
 #include "Graph.h"
-#include "node.h"
+#include "Node.h"
 
 #include <iostream>
 
@@ -11,224 +12,275 @@
 
 #include <vector>
 #include <unordered_map>
+#include <algorithm> // To use std::find
 
-#define NO_LIST_PRINTING 1
+#define GLOBAL_NO_DEBUG 0
 
-// Debug entries
+#define DEBUG_FILE_INPUTING 1
+
+#if GLOBAL_NO_DEBUG
+#define DEBUG_FILE_INPUTING 0
+#endif
+
+#define DEBUG_INPUT 1
+#define DEBUG_GETLINE 1
+#define DEBUG_INPUT_COUNT 1
+#define DEBUG_SEARCH_MATCHING 1
+#define DEBUG_PRINT_LIST 1
+#define DEBUG_NODE 1
+
+#if !DEBUG_FILE_INPUTING
+#define DEBUG_INPUT 0
 #define DEBUG_GETLINE 0
-#define DEBUG_LINE_INPUT 0 
-#define DEBUG_NO_EXISTING_MATCH 0
-#define DEBUG_READING_MAP_PRINTOUT 0
+#define DEBUG_INPUT_COUNT 0
+#define DEBUG_SEARCH_MATCHING 0
+#define DEBUG_PRINT_LIST 0
+#define DEBUG_NODE 0
+#endif
 
-#define DEBUG_LOG 0 
+
 
 typedef unsigned int uint;
 
 using namespace std;
 
-void ReadingInput( unordered_map<string, User > &, string);
-#if !(NO_LIST_PRINTING)
-void PrintingList( unordered_map<string, User > &);
-#endif
-uint OutputList( unordered_map<string, User > &, string, string);
+/*--------------------------------------------------------------------------*/
+uint ReadingFile( unordered_map<string, Edge> &, vector<Node> &, string);
+void PrintingList( unordered_map<string, Edge> &);
+/*--------------------------------------------------------------------------*/
+
+
 
 int main(int argc, char *argv[]) {
 	if(argc != 4)
 	{
-		// Not enough arguments
+#if !GLOBAL_NO_DEBUG
 		cout << "Don't have enough arguments." << endl;
+#endif
 		return 0;
 	}
+
 	string inputFileName = argv[1];
-	string userName = argv[2];
+	string Username = argv[2];
 	string outputFileName = argv[3];
 
-	/*--------------------------------------------------------------------*/
-	// Create List object, type of unordered map
-	unordered_map < string, User > MainList;
-#if DEBUG_NO_LOG
+
+	/*----------------------------------------------*/
+	unordered_map <string, Edge> MainList;
+	vector<Node> MainNode;
+#if !GLOBAL_NO_DEBUG
 	cout << "Unordered map created." << endl;
 #endif
 
-	ReadingInput(MainList, inputFileName);
+	// Read the input file
+	ReadingFile(MainList, MainNode, inputFileName);
 
-#if !(NO_LIST_PRINTING)
+#if DEBUG_PRINT_LIST
 	PrintingList(MainList);
 #endif
 
-	OutputList(MainList, outputFileName, userName);
-
+	// Create a vector as the queue for frontierQueue
+	// Nodes to be visited will be added to the queue
+	// Use push_back to add nodes to the end of the vector
+	// Use vector.erase(vector.begin()) to pop the first element
 	return 0;
 }
 
-void ReadingInput(unordered_map< string, User > &MainList, string inputFileName)
-{
-	// Input file stream
-	ifstream inp_stream;
 
-#if DEBUG_LOG
-	cout << inputFileName << endl;	
+
+uint ReadingFile( unordered_map<string, Edge> &MainList, 
+		vector<Node> &MainNode, string inputFileName)
+{
+#if DEBUG_INPUT_COUNT
+	uint _counter = 0;
 #endif
+	ifstream	inp_stream;
+	istringstream	inp_SS;
+
+#if DEBUG_INPUT
+	cout << "Input file: " << inputFileName << endl;
+#endif
+
 	inp_stream.open(inputFileName);
 
-	if( inp_stream.is_open() ) {}//cout << "The file is opened." << endl;
+	if( inp_stream.is_open() )
+	{
+#if DEBUG_INPUT
+		cout << "File seems to be opened." << endl;
+#endif
+	}
 	else
 	{
-		cout << "The file cannot be opened." << endl;
+#if DEBUG_INPUT
+		cout << "File cannot be opened." << endl;
+#endif
+		return 0;
 	}
 
 	string input_raw;
-	string username_temp, sub_temp;
-	User temp;
+	string Username_temp, UserFollowing_temp;
+	Edge temp_Edge;
+	Node temp_Node;
+	auto search_match = MainList.find("null");
 
-	// Input string stream
-	istringstream inp_SS;
-#if DEBUG_NO_LOG
-	cout << "Stringstream created." << endl;
+#if DEBUG_INPUT
+	cout << "Input string steam created." << endl;
 #endif
 
-	auto search_match = MainList.find("test");
-
-	//////////////////////////////////////////////////////////////////////////////////
-	// Reading files
+	//***********************************************************************/
+	// Main Loop
 	while( !inp_stream.eof() )
 	{
+		// Clear temps
+		input_raw.clear();
+		Username_temp.clear();
+		UserFollowing_temp.clear();
+		inp_SS.clear();
+		temp_Edge.UserFollowing.clear();
+
 #if DEBUG_GETLINE
-		cout << "Getting a line" << endl;
+		cout << "-------------------------------------------" << endl;
+		cout << "Getting a line." << endl << endl;
 #endif
 
 		getline(inp_stream, input_raw);
 
+		// Check for new line \n
+		if(inp_stream.eof())
+		{
 #if DEBUG_GETLINE
-		cout << "Raw: " << input_raw << endl;
+			cout << "File bottom out." << endl;
 #endif
+			return 1;
+		}
 
-		inp_SS.clear();
+#if DEBUG_GETLINE
+		cout << "Raw input: " << input_raw << endl << endl;
+#endif
 		inp_SS.str(input_raw);
 
-		inp_SS >> username_temp;
-		inp_SS >> sub_temp;
+		inp_SS >> UserFollowing_temp;
+		inp_SS >> Username_temp;
 
-		// Use the temp as the container for the followers
-		temp.Set_username(username_temp);
-
-////////////////////////////////////////////////////////////
-#if DEBUG_LINE_INPUT
-		cout << endl << "-------------------------------------" << endl;
-		cout << "username_temp: " << setw(20) << left << username_temp 
-			<< " sub_temp: " << setw(20) << left << sub_temp << endl;
-
-		//cout << "List size: " << MainList.size() << endl;
+#if DEBUG_GETLINE
+		cout << "Username temp: " << setw(15) << left << Username_temp
+			<< " Follows: " << setw(20) << left << UserFollowing_temp
+			<< endl << endl;
 #endif
-////////////////////////////////////////////////////////////
 
-		search_match = MainList.find(username_temp);
-		if(search_match != MainList.end())
-		{
-#if DEBUG_NO_LOG
-			cout << "Username: " << username_temp << " already existed." << endl;
-			cout << "New follower: " << sub_temp << endl;
+#if DEBUG_INPUT_COUNT
+		++_counter;
 #endif
-			MainList.at(username_temp)._Followers.push_back(sub_temp);
-		}
-		else
-		{
-#if DEBUG_NO_EXISTING_MATCH
-			cout << "No match found." << endl;
+		temp_Edge.depth = 0;
+
+		///////////////////////////////////////////////
+		//	MainList
+		// Making the graph by checking if the Username is already existed
+		search_match = MainList.find(Username_temp);
+		if( search_match == MainList.end() )
+		{// The Username is new, so create a new entry in the MainList
+
+#if DEBUG_SEARCH_MATCHING
+			cout << "No existing entry for Username: " << Username_temp
+				<< endl;
 			cout << "Creating a new entry in unordered map." << endl;
 #endif
-			// Create a new entry in the unordered map
-			temp._Followers.clear();
-			temp._Followers.push_back(sub_temp);
-			MainList.insert( {username_temp, temp} );
-		}
-#if DEBUG_READING_MAP_PRINTOUT
-		auto vector_test = MainList.at(username_temp)._Followers.end();
-		cout << "debug: " << username_temp << endl;
-		//cout << MainList.at(username_temp).Get_username() << " has follower: " << MainList.at(username_temp)._Followers.at(vector_test) << endl;
-		cout << endl;
+
+#if DEBUG_INPUT_COUNT
+			cout << "Count: " << _counter << endl;
 #endif
+
+			// Make the UserFollowing_temp as the first element of the temp
+			// 	vector
+			temp_Edge.UserFollowing.push_back(UserFollowing_temp);
+			// Put the temp into the unordered map
+			MainList.insert( {Username_temp, temp_Edge} );
+
+#if DEBUG_SEARCH_MATCHING
+			cout << "New entry: Username: " << Username_temp
+				<< " Last Following: "
+				<< MainList.at(Username_temp).UserFollowing.back()
+				<< endl;
+#endif
+		}
+		else
+		{// The Username is already existed in the map, so add to the vector
+#if DEBUG_SEARCH_MATCHING
+			cout << UserFollowing_temp << " is already existed." << endl;
+			cout << "New following: " << UserFollowing_temp << endl;
+#endif
+
+#if DEBUG_INPUT_COUNT
+			cout << "Count: " << _counter << endl;
+#endif
+			// Add the UserFollowing_temp to the corresponding vector
+			MainList.at(Username_temp).
+				UserFollowing.push_back(UserFollowing_temp);
+#if DEBUG_SEARCH_MATCHING
+			cout << "Existing Username got a new following: "
+				<< MainList.at(Username_temp).UserFollowing.back()
+				<< endl;
+#endif
+		}	// Finished the adding entry
+
+		//////////////////////////////////////////////////////
+		//	MainNode
+		//
+		// Clear temp
+		temp_Node.Username.clear();
+		temp_Node.IncomingEdge.clear();
+
+		temp_Node.Username = Username_temp;
+
+		if( find(MainNode.begin(),
+			MainNode.end(), Username_temp) == MainNode.end())
+		{// When Username doesn't exist in MainNode yet
+#if DEBUG_NODE
+			cout << "Username: " << Username_temp
+				<< " doesn't exist yet."
+				<< " Creating new entry in MainNode." << endl;
+#endif
+			MainNode.push_back(temp_Node);
+			// Put the follower of Username into the node member
+			MainNode.at(Username_temp).
+				IncomingEdge.push_back(UserFollowing_temp);
+#if DEBUG_NODE
+			cout << "Username; " << Username_temp
+				<< " has follower: "
+				<< MainNode.at(Username_temp).
+				IncomingEdge.back() << endl;
+#endif
+		}
+		else
+		{// Username already existed in MainNode
+		}
+
 	}
 	inp_stream.close();
+	return 1;
 }
 
-#if !(NO_LIST_PRINTING)
-void PrintingList( unordered_map<string, User > &MainList)
+
+
+#if DEBUG_PRINT_LIST
+void PrintingList( unordered_map<string, Edge> &MainList)
 {
+	uint counter = 0;
 	cout<<endl<<endl;
 	for(auto& it: MainList) {
 		cout << "------------------------------" << endl;
-		cout << "Outter Loop: " << endl;
+		cout << "Username: ";
 		cout << it.first << endl;
-		for(uint i = 0; i < it.second._Followers.size(); ++i)
+
+		cout << endl << "Following:" << endl;
+		for(uint i = 0; i < it.second.UserFollowing.size(); ++i)
 		{
-			cout << endl << "Inner Loop: " << endl;
-			cout << it.second._Followers.at(i) << endl;
+			cout << it.second.UserFollowing.at(i) << endl;
 		}
 		cout << endl;
+		++counter;
 	}
+	cout << "Counter: " << counter << endl;
+	cout << "Map size: " << MainList.size() << endl;
 }
 #endif
-
-
-uint OutputList( unordered_map<string, User > &MainList, string outputFileName, string userName)
-{
-	//cout << userName.length() << endl;
-	if(userName.length() > 15)
-	{
-		return 0;
-	}
-
-	ofstream oup_stream;
-	oup_stream.open(outputFileName);
-	//i(userName == "Poweraidus") return 0;
-	if(!oup_stream.is_open())
-	{
-		cout << "File can't be opened." << endl;
-		return 0;
-	}
-
-	uint count;
-	uint count_userName_match = 0;
-	auto search = MainList.find(userName);
-	if(search == MainList.end())
-	{
-		count = 0;
-	}
-	else
-	{
-		count = MainList.at(userName)._Followers.size();	
-	}
-	if(search != MainList.end())
-	{
-		for(uint i = 0; i < MainList.at(userName)._Followers.size(); ++i)
-		{
-			cout << MainList.at(userName)._Followers.at(i).length() << endl;
-			if(MainList.at(userName)._Followers.at(i).length() > 15)
-			{
-				return 0;
-			}
-		}
-	}
-	for(auto& it: MainList) {
-		for(uint i = 0; i < it.second._Followers.size(); ++i)
-		{
-			//cout << it.second._Followers.at(i) << endl;
-			if(it.second._Followers.at(i) == userName)
-			{
-				//cout << it.second._Followers.at(i) << endl;
-				count_userName_match += 1;
-			}
-		}
-	}
-	cout << count_userName_match << endl;
-	if(count_userName_match == 0) return 0;
-
-	oup_stream << "Looking for new accounts for " << userName;
-	oup_stream << " (" << count;
-	oup_stream << ") to follow" << endl;
-
-	oup_stream.close();
-
-	return 1;
-}
