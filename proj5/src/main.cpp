@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
 	// 	maybe a another vector for storing the qulified items
 	
 	// The frontierQueue
-	vector<Edge> MainQueue;
+	vector<Node> MainQueue;
 
 	// The discoveredSet
 	vector<Node> DiscoveredList;
@@ -128,24 +128,34 @@ int main(int argc, char *argv[]) {
 	vector<Node> QualifiedList;
 
 	Node currentNode;
+	Node previousNode;
+	Node temp_Node;
 	Edge currentEdge;
 	
 
 	// Start the BFS from the user specified
 	// Push the starting node to MainQueue
-	MainQueue.push_back( MainList.at(Username) );
+	MainQueue.push_back( SearchNode(MainNode, Username) );
+		//MainQueue.push_back( MainList.at(Username) );
 
 	// Add the first node to DiscoveredList
+	DiscoveredList.push_back( SearchNode(MainNode, Username) );
+		//DiscoveredList.push_back( SearchNode(MainNode, Username) );
+
+	// Set the first currentNode
+		//currentNode = SearchNode(MainNode, Username);
+	/*
 	for(uint i = 0; i < MainNode.size(); ++i)
 	{
-			if(MainNode.at(i).Username == Username)
-			{
-					DiscoveredList.push_back( MainNode.at(i) );
-					
-					// also set the currentNode for the first use
-					currentNode = MainNode.at(i);
-			}
+		if(MainNode.at(i).Username == Username)
+		{
+			DiscoveredList.push_back( MainNode.at(i) );
+			
+			// also set the currentNode for the first use
+			currentNode = MainNode.at(i);
+		}
 	}
+	*/
 
 #if DEBUG_BFS_DICV_SET
 	cout << endl << "DiscoveredList Last: "
@@ -159,7 +169,7 @@ int main(int argc, char *argv[]) {
 	cout << endl;
 	for(uint i = 0; i < MainQueue.back().UserFollowing.size(); ++i)
 	{
-			cout << MainQueue.back().UserFollowing.at(i);
+		cout << MainQueue.back().UserFollowing.at(i);
 	}
 	cout << endl;
 #endif
@@ -167,35 +177,93 @@ int main(int argc, char *argv[]) {
 	//------------------------------------------------------------------------------//
 	//------------------------------------------------------------------------------//
 	//	Main while loop for MainQueue
+	uint List_flag = 0;
+	uint Depth = 0;
 	while( !MainQueue.empty() )
 	{
-			// Set current edge and current node
-			currentEdge = MainQueue.at(0);
+		// Set current edge and current node
+		//previousNode = currentNode;
+		currentNode = MainQueue.at(0);
+		// Pop the first element from the MainQueue
+		MainQueue.erase(MainQueue.begin());
 
-			// TODO: How to detemine the current node
-#if DEBUG_BFS_QUEUE
-			cout << endl;
-			cout << "----------------------------------------";
-			cout << endl << "Current Edge has these following: " << endl;
-			for(uint i = 0; i < currentEdge.UserFollowing.size(); ++i)
+
+		// Visiting actions
+		// TODO
+		//
+		// Using IncomingEdge from class Node to detemine the depth
+		/*
+		temp_Node = SearchNode( MainNode, currentEdge.UserFollowing.at(0) );
+		for(uint i = 0; i < temp_Node.IncomingEdge.size(); ++i)
+		{
+			if(temp_Node.IncomingEdge.at(i) == Username)
 			{
-							cout << currentEdge.UserFollowing.at(i) << endl;
+				Depth = 0;
+				currentEdge.depth_Edge = 0;
+				MainNode.at(temp_Node.index_at_MainNode).depth_Node = 0;
 			}
-			cout << "Finished printing out current Edge." << endl;
+			else
+			{
+				Depth += 1;
+
+			}
+		}
+		*/
+
+
+
+
+		// for loop for adjacent Node
+		// TODO
+		
+
+		// TODO: How to detemine the current node
+		/*
+		for(uint i = 0; i < currentEdge.UserFollowing.size(); ++i)
+		{
+			// Check if these adjacent nodes are in DiscoveredList
+			List_flag = 0;
+			for(uint k = 0; k < DiscoveredList.size(); ++k)
+			{
+				if(currentEdge.UserFollowing.at(i) == DiscoveredList.at(k).Username)
+				{
+					// this adjacent node is already in the DiscoveredList
+					// so we will do nothing and carry on
+					List_flag = 1;
+				}
+				else
+				{
+					// this adjacent node is not in the DiscoveredList
+					// so we will add this node to the MainQueue and the DiscoveredList
+				}
+			}
+			if(List_flag == 1)
+			{
+			}
+			else
+			{
+				MainQueue.push_back( MainList.at( currentEdge.UserFollowing.at(i) ) );
+				DiscoveredList.push_back( SearchNode( MainNode, currentEdge.UserFollowing.at(i) ) );
+			}
+		}
+		*/
+		
+		
+#if DEBUG_BFS_QUEUE
+		cout << endl;
+		cout << "----------------------------------------";
+		cout << endl << "Current Edge has these following: " << endl;
+		for(uint i = 0; i < currentEdge.UserFollowing.size(); ++i)
+		{
+						cout << currentEdge.UserFollowing.at(i) << endl;
+		}
+		cout << "Finished printing out current Edge." << endl;
 #endif
 
-			// Pop the first element of the queue
-			MainQueue.erase(MainQueue.begin());
-
-			// Visiting actions
-			// TODO
 
 
-			// for loop for adjacent Node
-			// TODO
 
-
-	}
+	}	// end while
 	//------------------------------------------------------------------------------//
 	//------------------------------------------------------------------------------//
 
@@ -278,7 +346,7 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 		UserFollowing_temp.clear();
 		inp_SS.clear();
 		temp_Edge.UserFollowing.clear();
-		temp_Edge.depth = 0;
+		temp_Edge.depth_Edge = 0;
 
 #if DEBUG_GETLINE
 		cout << "-------------------------------------------" << endl;
@@ -294,15 +362,15 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 #if DEBUG_GETLINE
 			cout << "File bottom out." << endl;
 #endif
-		// Calculate the count of followers
+		// Calculate the count of followings
 			for(uint i = 0; i < MainNode.size(); ++i)
 			{
-				MainNode.at(i).CNT_Follower = MainNode.at(i).IncomingEdge.size();
+				MainNode.at(i).CNT_Following = MainNode.at(i).UserFollowing.size();
 #if DEBUG_NODE
 				cout << "Username: "
 					<< MainNode.at(i).Username
-					<< " has " << MainNode.at(i).CNT_Follower
-					<< " followers." << endl;
+					<< " has " << MainNode.at(i).CNT_Following
+					<< " followings." << endl;
 #endif
 			}
 			return 1;
@@ -387,11 +455,14 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 
 		// Clear temp
 		temp_Node.Username.clear();
-		temp_Node.IncomingEdge.clear();
+		//temp_Node.IncomingEdge.clear();
+		temp_Node.UserFollowing.clear();
 		node_i = 999999;
 		node_flag = 0;
 
 		temp_Node.Username = UserFollowing_temp;
+		//temp_Node.UserFollowing.push_back( Username );
+		
 		for(uint i = 0; i < MainNode.size(); ++i)
 		{
 #if DEBUG_NODE
@@ -427,12 +498,12 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 			MainNode.push_back(temp_Node);
 			// Put the follower of Username into the node member
 			MainNode.back().
-				IncomingEdge.push_back(Username_temp);
+				UserFollowing.push_back(Username_temp);
 #if DEBUG_NODE
 			cout << "Username; " << UserFollowing_temp
-				<< " has follower: "
+				<< " is following: "
 				<< MainNode.back().
-				IncomingEdge.back() << endl;
+				UserFollowing.back() << endl;
 #endif
 		}
 		else
@@ -442,15 +513,16 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 				<< " has already existed in vector."
 				<< " Adding it to current vector." << endl;
 #endif
-			MainNode.at(node_i).IncomingEdge.
+			MainNode.at(node_i).UserFollowing.
 				push_back(Username_temp);
 
 #if DEBUG_NODE
 			cout << "Username: " << UserFollowing_temp
-				<< " has a new follower: "
-				<< MainNode.at(node_i).IncomingEdge.
+				<< " has a new following: "
+				<< MainNode.at(node_i).UserFollowing.
 				back() << endl;
 #endif
+		
 		}
 	}	// End while loop
 	inp_stream.close();
@@ -496,20 +568,22 @@ void PrintingList( unordered_map<string, Edge> &MainList)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //////////////// Begin of Function //////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
-Node SearchNode			( vector<Node> MainNode, string Username)
+Node SearchNode			( vector<Node> MainNode, string Username )
 {
-				uint index = 0;
-				for(index = 0; index < MainNode.size(); ++index)
-				{
-								if(MainNode.at(index).Username == Username)
-								{
-												return MainNode.at(index);
-								}
-				}
+	uint index = 0;
+	Node empty;
+	for(index = 0; index < MainNode.size(); ++index)
+	{
+		if(MainNode.at(index).Username == Username)
+		{
+			empty = MainNode.at(index);
+			//empty.index_at_MainNode = index;
+			return empty;
+		}
+	}
 
-				Node empty;
-				empty.Username = "Username cannot be found";
-				return empty;
+	empty.Username = "Username cannot be found";
+	return empty;
 }
 //////////////// End of Function ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////

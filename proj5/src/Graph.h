@@ -11,7 +11,8 @@ typedef unsigned int uint;
 class Edge {
 	private:
 	public:
-		uint depth;
+	
+		uint depth_Edge;
 
 		std::vector <std::string> UserFollowing;
 };

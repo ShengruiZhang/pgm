@@ -11,10 +11,19 @@ typedef unsigned int uint;
 class Node {
 	private:
 	public:
+	/*	old
 		uint CNT_Follower;
+		uint depth_Node;
+		uint index_at_MainNode;
 
 		std::string Username;
 		std::vector <std::string> IncomingEdge;
+		*/
+		
+		uint CNT_Following;
+		std::string Username;
+		uint depth_Node;
+		std::vector<std::string> UserFollowing;
 };
 
 #endif
