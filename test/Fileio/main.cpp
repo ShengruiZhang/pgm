@@ -1,5 +1,5 @@
 #include <iostream>
-#include <string>		// ---]
+#include <String>		// ---]
 #include <iomanip>		// ---]
 #include <sstream>		// Stringstream
 #include <fstream>		// Filestream

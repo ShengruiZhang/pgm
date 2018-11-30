@@ -10,6 +10,8 @@
 #include <unordered_map>
 #endif
 
+
+#define DEBUG_ENABLE 1
 typedef unsigned int uint;
 
 
@@ -197,10 +199,12 @@ uint ReadingConstr(vector <F1_Entry> &Entry, string inputFile)
 		inp_SS >> pu_temp;
 		inp_SS >> points;
 
+#if DEBUG_ENABLE
 		cout << mfg_temp << endl;
 		cout << chassis_temp << endl;
 		cout << pu_temp << endl;
 		cout << points << endl << endl;
+#endif
 
 		temp.setConstrName(mfg_temp);
 		temp.setChassis(chassis_temp);
