@@ -11,10 +11,10 @@ typedef unsigned int uint;
 class Edge {
 	private:
 	public:
-	
+
 		uint depth_Edge;
 
-		std::vector <std::string> UserFollowing;
+		std::vector <std::string> Follower;
 };
 
 #endif

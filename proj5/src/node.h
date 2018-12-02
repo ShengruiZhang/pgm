@@ -19,11 +19,13 @@ class Node {
 		std::string Username;
 		std::vector <std::string> IncomingEdge;
 		*/
-		
+
 		uint CNT_Following;
+		uint CNT_Follower;
 		std::string Username;
 		uint depth_Node;
 		std::vector<std::string> UserFollowing;
+		std::vector <std::string> IncomingEdge;
 };
 
 #endif
