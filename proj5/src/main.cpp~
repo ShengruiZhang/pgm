@@ -29,8 +29,8 @@
 										////
 // Toggle each main debugging category	////
 #define GLOBAL_DEBUG 0					////
-#define DEBUG_FILE_INPUTING 1			////
-#define DEBUG_BFS 1						////
+#define DEBUG_FILE_INPUTING 0			////
+#define DEBUG_BFS 0						////
 #endif									////
 										////
 										////
@@ -40,7 +40,7 @@
 #define DEBUG_GETLINE 0					////
 #define DEBUG_INPUT_COUNT 0				////
 #define DEBUG_SEARCH_MATCHING 0			////
-#define DEBUG_PRINT_LIST 1				////
+#define DEBUG_PRINT_LIST 0				////
 #define DEBUG_NODE 0					////
 										////
 										////
@@ -57,11 +57,11 @@
 #if DEBUG_BFS 							////
 // Toggle each sub-category debugging	////
 #define DEBUG_BFS_QUEUE 0				////
-#define DEBUG_BFS_DICV_SET 1			////
+#define DEBUG_BFS_DICV_SET 0			////
 #define DEBUG_BFS_ADJ 0					////
-#define DEBUG_BFS_ADJ_OUT 1				////
-#define DEBUG_BFS_MAIN_QUEUE 1			////
-#define DEBUG_BFS_DEPTH 1				////
+#define DEBUG_BFS_ADJ_OUT 0				////
+#define DEBUG_BFS_MAIN_QUEUE 0			////
+#define DEBUG_BFS_DEPTH 0				////
 										////
 										////
 #else									////
@@ -76,17 +76,41 @@
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 
+#define BFS_DEPTH 3
+
 typedef unsigned int uint;                  
 
 using namespace std;
+
+// Define Lexi sorting
+namespace
+{
+	struct case_insensitive: public std::binary_function<char, char, bool>
+	{
+		bool operator () (char x, char y) const
+		{
+			return toupper(static_cast<unsigned char > (x)) <
+					toupper(static_cast<unsigned char > (y));
+		}
+	};
+	
+	bool lexCompare(Node &a, Node &b)
+	{
+		return lexicographical_compare(a.Username.begin(), a.Username.end(),
+										b.Username.begin(), b.Username.end(), 
+										case_insensitive());
+	}
+}
 
 /*--------------------------------------------------------------------------*/
 uint ReadingFile		( unordered_map<string, Edge> &, vector<Node> &, string );
 void PrintingList		( unordered_map<string, Edge> & );
 void PrintingMainNode	( vector<Node> & );
-void PrintingDiscoveredList( vector<Node> &);
+void PrintingDiscoveredList( vector<Node> & );
 Node SearchNode			( vector<Node>, string );
-void CalcFollower		( vector<Node> &, unordered_map<string, Edge> &);
+void CalcFollower		( vector<Node> &, unordered_map<string, Edge> & );
+void FindOnDepth		( vector<Node> &, vector<Node> &, uint );
+void SortLexi			( vector<Node> &, vector<Node> &);
 /*--------------------------------------------------------------------------*/
 
 
@@ -118,9 +142,6 @@ int main(int argc, char *argv[]) {
 	// Read the input file
 	ReadingFile(MainList, MainNode, inputFileName);
 	
-	// Calc CNT_Follower
-	CalcFollower(MainNode, MainList);
-
 #if DEBUG_PRINT_LIST
 	PrintingList(MainList);
 	PrintingMainNode(MainNode);
@@ -275,7 +296,6 @@ int main(int argc, char *argv[]) {
 				}
 				
 				temp_Node.depth_Node = Depth;
-						
 				DiscoveredList.push_back( temp_Node );
 				
 //*****************************************************************************				
@@ -304,8 +324,27 @@ int main(int argc, char *argv[]) {
 	}	// end while
 	//------------------------------------------------------------------------------//
 	//------------------------------------------------------------------------------//
+	//******************************************************************************//
+	//							BFS ENDS HERE										//
+	//******************************************************************************//	
 	
-	PrintingDiscoveredList(DiscoveredList);
+	// Calc CNT_Follower
+	CalcFollower(DiscoveredList, MainList);
+	//PrintingDiscoveredList(DiscoveredList);
+	
+	vector<Node> NewNode;
+	NewNode.clear();
+	FindOnDepth(DiscoveredList, NewNode, BFS_DEPTH);
+
+	// Sort by depth first
+	sort(NewNode.rbegin(), NewNode.rend());
+	
+	// Sort by lexicographical_compare
+	vector<Node> SortedNode;
+	SortLexi(NewNode, SortedNode);
+
+	// For debug
+	PrintingDiscoveredList(SortedNode);
 	
 	/*----------------------------------------------------------*/
 	ofstream oup_stream;
@@ -611,6 +650,7 @@ void PrintingMainNode( vector<Node> &MainNode )
 		<< endl;
 	}
 }
+#endif
 
 
 void PrintingDiscoveredList( vector<Node> &DiscoveredList )
@@ -623,10 +663,10 @@ void PrintingDiscoveredList( vector<Node> &DiscoveredList )
 		<< counter << ": " << setw(16) << left
 		<< DiscoveredList.at(counter).Username
 		<< " Depth: " << DiscoveredList.at(counter).depth_Node
+		<< " CNT_Follower: " << DiscoveredList.at(counter).CNT_Follower
 		<< endl;
 	}
 }
-#endif
 //////////////// End of Function ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -670,7 +710,7 @@ void CalcFollower(vector<Node> &MainNode, unordered_map<string, Edge> &MainList)
 		//cout << endl << "it.first: " << it.first << endl;
 		for(shit = 0; shit < MainNode.size(); ++shit)
 		{
-			//cout << endl << "MainNode.at(shit).Username: "
+			//cout << "MainNode.at(shit).Username: "
 				//<< MainNode.at(shit).Username << endl;
 			if(MainNode.at(shit).Username == it.first)
 			{
@@ -679,6 +719,63 @@ void CalcFollower(vector<Node> &MainNode, unordered_map<string, Edge> &MainList)
 				break;
 			}
 		}
+	}
+}
+//////////////// End of Function ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//////////////// Begin of Function //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+void FindOnDepth(vector<Node> &DiscoveredList, vector<Node> &NewNode, uint InDegree)
+{
+	uint counter = 0;
+	uint temp = 0;
+	for(counter = 0; counter < DiscoveredList.size(); ++counter)
+	{
+		temp = DiscoveredList.at(counter).depth_Node;
+		if( temp <= 3 && temp != 0)
+		{
+			//cout << DiscoveredList.at(counter).Username;
+			//cout << " InDegree <= 3" << endl;
+			NewNode.push_back(DiscoveredList.at(counter));
+		}
+	}
+}
+//////////////// End of Function ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//////////////// Begin of Function //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+void SortLexi(vector<Node> &NewNode, vector<Node> &SortedNode)
+{
+	uint temp = 1;
+	vector<Node> temp_Node;
+
+	while( NewNode.size() != SortedNode.size())
+	{
+		// Make all the node with same depth together
+		temp_Node.clear();
+		for(uint nfg = 0; nfg < NewNode.size(); ++nfg, ++temp)
+		{
+			if(NewNode.at(nfg).depth_Node = nfg)
+			{
+				SortedNode.push_back(temp_Node.at(nfg));
+			}
+		}
+
+		// Sort the partion that have the same depth
+		sort(temp_Node.begin(), temp_Node.end(), lexCompare);
+
+		// Append the sorted temp_Node to SortedNode
+		SortedNode.insert(a.end(), temp_Node.begin(), temp_Node.end());
 	}
 }
 //////////////// End of Function ////////////////////////////////////////////////

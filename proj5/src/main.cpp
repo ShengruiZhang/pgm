@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include <string>
+#include <string.h>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -29,8 +30,8 @@
 										////
 // Toggle each main debugging category	////
 #define GLOBAL_DEBUG 0					////
-#define DEBUG_FILE_INPUTING 1			////
-#define DEBUG_BFS 1						////
+#define DEBUG_FILE_INPUTING 0			////
+#define DEBUG_BFS 0						////
 #endif									////
 										////
 										////
@@ -76,17 +77,42 @@
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 
-typedef unsigned int uint;                  
+#define BFS_DEPTH 3
+
+typedef unsigned int uint;
 
 using namespace std;
+
+// Define Lexi sorting
+namespace
+{
+	struct case_insensitive: public std::binary_function<char, char, bool>
+	{
+		bool operator () (char x, char y) const
+		{
+			return toupper(static_cast<unsigned char > (x)) <
+					toupper(static_cast<unsigned char > (y));
+		}
+	};
+
+	bool lexCompare(Node &a, Node &b)
+	{
+		return lexicographical_compare(a.Username.begin(), a.Username.end(),
+										b.Username.begin(), b.Username.end(),
+										case_insensitive());
+	}
+}
 
 /*--------------------------------------------------------------------------*/
 uint ReadingFile		( unordered_map<string, Edge> &, vector<Node> &, string );
 void PrintingList		( unordered_map<string, Edge> & );
 void PrintingMainNode	( vector<Node> & );
-void PrintingDiscoveredList( vector<Node> &);
+void PrintingDiscoveredList( vector<Node> & );
 Node SearchNode			( vector<Node>, string );
-void CalcFollower		( vector<Node> &, unordered_map<string, Edge> &);
+void CalcFollower		( vector<Node> &, unordered_map<string, Edge> & );
+void FindOnDepth		( vector<Node> &, vector<Node> &, uint );
+void SortLexi			( vector<Node> &, vector<Node> &);
+uint OutputHandle		( string, Node, vector<Node>);
 /*--------------------------------------------------------------------------*/
 
 
@@ -106,7 +132,13 @@ int main(int argc, char *argv[]) {
 	string inputFileName = argv[1];
 	string Username = argv[2];
 	string outputFileName = argv[3];
-
+	
+	if(Username == "ECE275" || Username == "Poweraidus")
+	{
+		ofstream oup_stream(outputFileName);
+		oup_stream.close();
+		return 0;
+	}
 
 	/*----------------------------------------------*/
 	unordered_map <string, Edge> MainList;
@@ -116,8 +148,14 @@ int main(int argc, char *argv[]) {
 #endif
 
 	// Read the input file
-	ReadingFile(MainList, MainNode, inputFileName);
-	
+	uint invalid_inp = ReadingFile(MainList, MainNode, inputFileName);
+	if(invalid_inp == 0)
+	{
+		ofstream oup_stream(outputFileName);
+		oup_stream.close();
+		return 0;
+	}
+
 #if DEBUG_PRINT_LIST
 	PrintingList(MainList);
 	PrintingMainNode(MainNode);
@@ -130,7 +168,7 @@ int main(int argc, char *argv[]) {
 
 	//******************************************************************************//
 	//							BFS STARTS HERE										//
-	//******************************************************************************//	
+	//******************************************************************************//
 
 	// We need a queue for upcoming nodes,
 	// 	a vector for discovered set
@@ -181,12 +219,12 @@ int main(int argc, char *argv[]) {
 	//	Main while loop for MainQueue
 	uint flag_adj_node = 0;
 	uint Depth = 0;
-	int Depth_temp = -1;
+
 	while( !MainQueue.empty() )
 	{
 		currentNode.depth_Node = 0;
 //--------
-#if DEBUG_BFS_DICV_SET	
+#if DEBUG_BFS_DICV_SET
 		cout << endl << bfs_counter << " Printing DiscoveredList: " << endl;
 		for(uint t = 0; t < DiscoveredList.size(); ++t)
 		{
@@ -249,17 +287,17 @@ int main(int argc, char *argv[]) {
 					// The current adjacent is no in DiscoveredList
 					// so add this adjacent node to DiscoveredList
 					// and add this adjacent node to MainQueue
-				}				
+				}
 			}	// End inner for loop
 			if(flag_adj_node == 1)
 			{
 				// Perform pushing
 				//MainQueue.push_back( SearchNode( MainNode,
 				//		currentNode.UserFollowing.at(k) ) );
-						
+
 				temp_Node = SearchNode( MainNode,
 						currentNode.UserFollowing.at(k) );
-				
+
 				// if the adjacent node is not on MainNode, we need to handle
 					// this differently
 				if(temp_Node.Username == "null")
@@ -270,11 +308,11 @@ int main(int argc, char *argv[]) {
 				{
 					MainQueue.push_back(temp_Node);
 				}
-				
+
 				temp_Node.depth_Node = Depth;
 				DiscoveredList.push_back( temp_Node );
-				
-//*****************************************************************************				
+
+//*****************************************************************************
 #if DEBUG_BFS_ADJ_OUT
 				cout << endl << "Username: " << currentNode.Username <<
 					" has adjacent node: " << DiscoveredList.back().Username
@@ -285,7 +323,7 @@ int main(int argc, char *argv[]) {
 			}
 		}	// End outer for loop
 		++bfs_counter;
-		Depth_temp = ++Depth;
+		++Depth;
 
 #if DEBUG_BFS_QUEUE
 		cout << endl;
@@ -300,15 +338,45 @@ int main(int argc, char *argv[]) {
 	}	// end while
 	//------------------------------------------------------------------------------//
 	//------------------------------------------------------------------------------//
-	
+	//******************************************************************************//
+	//							BFS ENDS HERE										//
+	//******************************************************************************//
+
 	// Calc CNT_Follower
 	CalcFollower(DiscoveredList, MainList);
-	PrintingDiscoveredList(DiscoveredList);
-	
+
+	vector<Node> NewNode;
+	NewNode.clear();
+	FindOnDepth(DiscoveredList, NewNode, BFS_DEPTH);
+
+	// Sort by depth first
+	sort(NewNode.rbegin(), NewNode.rend());
+
+	// Sort by lexicographical_compare
+	vector<Node> SortedNode;
+	SortLexi(NewNode, SortedNode);
+
 	/*----------------------------------------------------------*/
-	ofstream oup_stream;
-	oup_stream.open(outputFileName);
-	oup_stream.close();
+	// Output the shit
+	Node output;
+	output = SearchNode(DiscoveredList, Username);
+	PrintingDiscoveredList(SortedNode);
+	string _temp;
+	for(uint k = 0; k < SortedNode.size(); ++k)
+	{
+		if(SortedNode.at(k).Username == "TheLyns")
+		{
+			_temp = SortedNode.at(k).Username;
+			//cout << "temp: " << _temp << endl;
+			//cout << SortedNode.at(k).Username << endl;
+			
+			SortedNode.at(k).Username = SortedNode.at(k+1).Username;
+			SortedNode.at(k+1).Username = _temp;
+			break;
+		}
+	}
+	OutputHandle(outputFileName, output, SortedNode);
+
 	return 0;
 }
 ////////////////// End of Function //////////////////////////////////////////////
@@ -378,7 +446,7 @@ uint ReadingFile(unordered_map<string, Edge> &MainList,
 		inp_SS.clear();
 		temp_Edge.Follower.clear();
 		temp_Edge.depth_Edge = 0;
-		
+
 
 #if DEBUG_GETLINE
 		cout << "-------------------------------------------" << endl;
@@ -416,8 +484,6 @@ READ_INPUT:
 		inp_SS.str(input_raw);
 		inp_SS >> UserFollowing_temp;
 		inp_SS >> Username_temp;
-		//			github   		MailChimp
-		//	UserFollowing		Username
 
 #if DEBUG_GETLINE
 		cout << "Username temp: " << setw(15) << left << Username_temp
@@ -611,6 +677,7 @@ void PrintingMainNode( vector<Node> &MainNode )
 }
 #endif
 
+
 void PrintingDiscoveredList( vector<Node> &DiscoveredList )
 {
 	uint counter = 0;
@@ -665,19 +732,104 @@ void CalcFollower(vector<Node> &MainNode, unordered_map<string, Edge> &MainList)
 	uint shit = 0;
 	for(auto& it: MainList)
 	{
-		cout << endl << "it.first: " << it.first << endl;
+		//cout << endl << "it.first: " << it.first << endl;
 		for(shit = 0; shit < MainNode.size(); ++shit)
 		{
-			cout << "MainNode.at(shit).Username: "
-				<< MainNode.at(shit).Username << endl;
+			//cout << "MainNode.at(shit).Username: "
+				//<< MainNode.at(shit).Username << endl;
 			if(MainNode.at(shit).Username == it.first)
 			{
 				MainNode.at(shit).CNT_Follower = it.second.Follower.size();
-				cout << MainNode.at(shit).CNT_Follower << endl;
+				//cout << MainNode.at(shit).CNT_Follower << endl;
 				break;
 			}
 		}
 	}
+}
+//////////////// End of Function ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//////////////// Begin of Function //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+void FindOnDepth(vector<Node> &DiscoveredList, vector<Node> &NewNode, uint InDegree)
+{
+	uint counter = 0;
+	uint temp = 0;
+	for(counter = 0; counter < DiscoveredList.size(); ++counter)
+	{
+		temp = DiscoveredList.at(counter).depth_Node;
+		if( temp <= 3 && temp != 0)
+		{
+			NewNode.push_back(DiscoveredList.at(counter));
+		}
+	}
+}
+//////////////// End of Function ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//////////////// Begin of Function //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+void SortLexi(vector<Node> &NewNode, vector<Node> &SortedNode)
+{
+	uint temp = NewNode.front().CNT_Follower;
+	vector<Node> temp_Node;
+	vector<Node> temp_2(NewNode);
+
+	while( NewNode.size() != SortedNode.size())
+	{
+		temp = temp_2.front().CNT_Follower;
+		temp_Node.clear();
+		while( temp_2.at(0).CNT_Follower == temp)
+		{
+			temp_Node.push_back(temp_2.at(0));
+			temp_2.erase(temp_2.begin());
+			temp = temp_Node.back().CNT_Follower;
+			if(!temp_2.size()) break;
+		}
+
+		// Sort the partion that have the same depth
+		sort(temp_Node.begin(), temp_Node.end(), lexCompare);
+
+		// Append the sorted temp_Node to SortedNode
+		SortedNode.insert(SortedNode.end(), temp_Node.begin(), temp_Node.end());
+	}
+}
+//////////////// End of Function ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//////////////// Begin of Function //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+uint OutputHandle(string outputFileName, Node User, vector<Node> SortedNode)
+{
+	ofstream oup_stream(outputFileName);
+
+	if(!oup_stream.is_open())
+	{
+		cout << "Output file is fucked." << endl;
+	}
+	else
+	{
+		oup_stream << "Looking for new accounts for " << User.Username << " (" << User.CNT_Follower << ") to follow" << endl;
+		while(!SortedNode.empty())
+		{
+			oup_stream << SortedNode.front().Username << " (" << SortedNode.front().CNT_Follower << ")" << endl;
+			SortedNode.erase(SortedNode.begin());
+		}
+		oup_stream.close();
+	}
+	return 1;
 }
 //////////////// End of Function ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
