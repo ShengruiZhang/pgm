@@ -14,63 +14,103 @@
 #include <unordered_map>
 #include <algorithm> // To use std::find
 
-#define GLOBAL_NO_DEBUG 0
 
-#if GLOBAL_NO_DEBUG
-#define GLOBAL_DEBUG 0
-#define DEBUG_FILE_INPUTING 0
-#define DEBUG_BFS 0
-#else
+////////////////////////////////////////////
+////////////////// DEBUG MACROS ////////////
+////////////////////////////////////////////
+#define GLOBAL_NO_DEBUG 0				////
+										////
+#if GLOBAL_NO_DEBUG						////
+#define GLOBAL_DEBUG 0					////
+#define DEBUG_FILE_INPUTING 0			////
+#define DEBUG_BFS 0						////
+#else									////
+										////
+										////
+// Toggle each main debugging category	////
+#define GLOBAL_DEBUG 0					////
+#define DEBUG_FILE_INPUTING 0			////
+#define DEBUG_BFS 0						////
+#endif									////
+										////
+										////
+#if DEBUG_FILE_INPUTING					////
+// Toggle each sub-category debugging	////
+#define DEBUG_INPUT 0					////
+#define DEBUG_GETLINE 0					////
+#define DEBUG_INPUT_COUNT 0				////
+#define DEBUG_SEARCH_MATCHING 0			////
+#define DEBUG_PRINT_LIST 0				////
+#define DEBUG_NODE 0					////
+										////
+										////
+#else									////
+#define DEBUG_INPUT 0					////
+#define DEBUG_GETLINE 0					////
+#define DEBUG_INPUT_COUNT 0				////
+#define DEBUG_SEARCH_MATCHING 0			////
+#define DEBUG_PRINT_LIST 0				////
+#define DEBUG_NODE 0					////
+#endif									////
+										////
+										////
+#if DEBUG_BFS 							////
+// Toggle each sub-category debugging	////
+#define DEBUG_BFS_QUEUE 0				////
+#define DEBUG_BFS_DICV_SET 0			////
+#define DEBUG_BFS_ADJ 0					////
+#define DEBUG_BFS_ADJ_OUT 0				////
+#define DEBUG_BFS_MAIN_QUEUE 0			////
+#define DEBUG_BFS_DEPTH 0				////
+										////
+										////
+#else									////
+#define DEBUG_BFS_QUEUE 0				////
+#define DEBUG_BFS_DICV_SET 0			////
+#define DEBUG_BFS_ADJ 0					////
+#define DEBUG_BFS_ADJ_OUT 0				////
+#define DEBUG_BFS_MAIN_QUEUE 0			////
+#define DEBUG_BFS_DEPTH 0				////
+#endif									////
+////////////////////////////////////////////
+////////////////////////////////////////////
+////////////////////////////////////////////
 
+#define BFS_DEPTH 3
 
-// Toggle each main debugging category
-#define GLOBAL_DEBUG 0
-#define DEBUG_FILE_INPUTING 0
-#define DEBUG_BFS 1
-#endif
-
-
-#if DEBUG_FILE_INPUTING
-// Toggle each sub-category debugging
-#define DEBUG_INPUT 1
-#define DEBUG_GETLINE 1
-#define DEBUG_INPUT_COUNT 1
-#define DEBUG_SEARCH_MATCHING 1
-#define DEBUG_PRINT_LIST 0
-#define DEBUG_NODE 1
-
-
-#else
-#define DEBUG_INPUT 0
-#define DEBUG_GETLINE 0
-#define DEBUG_INPUT_COUNT 0
-#define DEBUG_SEARCH_MATCHING 0
-#define DEBUG_PRINT_LIST 0
-#define DEBUG_NODE 0
-#endif
-
-
-#if DEBUG_BFS
-// Toggle each sub-category debugging
-#define DEBUG_BFS_QUEUE 1
-#define DEBUG_BFS_DICV_SET 1
-#define DEBUG_BFS_ADJ 1
-
-
-#else
-#define DEBUG_BFS_QUEUE 0
-#define DEBUG_BFS_DICV_SET 0
-#define DEBUG_BFS_ADJ 0
-#endif
-
-typedef unsigned int uint;
+typedef unsigned int uint;                  
 
 using namespace std;
 
+// Define Lexi sorting
+namespace
+{
+	struct case_insensitive: public std::binary_function<char, char, bool>
+	{
+		bool operator () (char x, char y) const
+		{
+			return toupper(static_cast<unsigned char > (x)) <
+					toupper(static_cast<unsigned char > (y));
+		}
+	};
+	
+	bool lexCompare(Node &a, Node &b)
+	{
+		return lexicographical_compare(a.Username.begin(), a.Username.end(),
+										b.Username.begin(), b.Username.end(), 
+										case_insensitive());
+	}
+}
+
 /*--------------------------------------------------------------------------*/
-uint ReadingFile		( unordered_map<string, Edge> &, vector<Node> &, string);
-void PrintingList		( unordered_map<string, Edge> &);
-Node SearchNode			( vector<Node>, string);
+uint ReadingFile		( unordered_map<string, Edge> &, vector<Node> &, string );
+void PrintingList		( unordered_map<string, Edge> & );
+void PrintingMainNode	( vector<Node> & );
+void PrintingDiscoveredList( vector<Node> & );
+Node SearchNode			( vector<Node>, string );
+void CalcFollower		( vector<Node> &, unordered_map<string, Edge> & );
+void FindOnDepth		( vector<Node> &, vector<Node> &, uint );
+void SortLexi			( vector<Node> &, vector<Node> &);
 /*--------------------------------------------------------------------------*/
 
 
@@ -101,25 +141,27 @@ int main(int argc, char *argv[]) {
 
 	// Read the input file
 	ReadingFile(MainList, MainNode, inputFileName);
-
+	
 #if DEBUG_PRINT_LIST
 	PrintingList(MainList);
+	PrintingMainNode(MainNode);
 #endif
 
 	// Create a vector as the queue for frontierQueue
 	// Nodes to be visited will be added to the queue
 	// Use push_back to add nodes to the end of the vector
 	// Use vector.erase(vector.begin()) to pop the first element
-	//
 
-	// Here starts the BFS search
-	
+	//******************************************************************************//
+	//							BFS STARTS HERE										//
+	//******************************************************************************//	
+
 	// We need a queue for upcoming nodes,
 	// 	a vector for discovered set
 	// 	maybe a another vector for storing the qulified items
-	
+
 	// The frontierQueue
-	vector<Edge> MainQueue;
+	vector<Node> MainQueue;
 
 	// The discoveredSet
 	vector<Node> DiscoveredList;
@@ -128,26 +170,20 @@ int main(int argc, char *argv[]) {
 	vector<Node> QualifiedList;
 
 	Node currentNode;
-	Edge currentEdge;
-	
+	Node temp_Node;
+
+	uint bfs_counter = 0;
 
 	// Start the BFS from the user specified
 	// Push the starting node to MainQueue
-	MainQueue.push_back( MainList.at(Username) );
+	currentNode = SearchNode(MainNode, Username);
+	currentNode.depth_Node = 0;
+	MainQueue.push_back(currentNode);
 
 	// Add the first node to DiscoveredList
-	for(uint i = 0; i < MainNode.size(); ++i)
-	{
-			if(MainNode.at(i).Username == Username)
-			{
-					DiscoveredList.push_back( MainNode.at(i) );
-					
-					// also set the currentNode for the first use
-					currentNode = MainNode.at(i);
-			}
-	}
+	DiscoveredList.push_back(currentNode);
 
-#if DEBUG_BFS_DICV_SET
+#if 0
 	cout << endl << "DiscoveredList Last: "
 			<< DiscoveredList.back().Username << endl;
 #endif
@@ -159,7 +195,7 @@ int main(int argc, char *argv[]) {
 	cout << endl;
 	for(uint i = 0; i < MainQueue.back().UserFollowing.size(); ++i)
 	{
-			cout << MainQueue.back().UserFollowing.at(i);
+		cout << MainQueue.back().UserFollowing.at(i);
 	}
 	cout << endl;
 #endif
@@ -167,45 +203,149 @@ int main(int argc, char *argv[]) {
 	//------------------------------------------------------------------------------//
 	//------------------------------------------------------------------------------//
 	//	Main while loop for MainQueue
+	uint flag_adj_node = 0;
+	uint Depth = 0;
+	int Depth_temp = -1;
 	while( !MainQueue.empty() )
 	{
-			// Set current edge and current node
-			currentEdge = MainQueue.at(0);
-
-			// TODO: How to detemine the current node
-#if DEBUG_BFS_QUEUE
-			cout << endl;
-			cout << "----------------------------------------";
-			cout << endl << "Current Edge has these following: " << endl;
-			for(uint i = 0; i < currentEdge.UserFollowing.size(); ++i)
-			{
-							cout << currentEdge.UserFollowing.at(i) << endl;
-			}
-			cout << "Finished printing out current Edge." << endl;
+		currentNode.depth_Node = 0;
+//--------
+#if DEBUG_BFS_DICV_SET	
+		cout << endl << bfs_counter << " Printing DiscoveredList: " << endl;
+		for(uint t = 0; t < DiscoveredList.size(); ++t)
+		{
+			cout << DiscoveredList.at(t).Username << endl;
+		}
 #endif
+//*******
 
-			// Pop the first element of the queue
-			MainQueue.erase(MainQueue.begin());
+//------
+#if DEBUG_BFS_MAIN_QUEUE
+		cout << endl << bfs_counter << " Printing MainQueue: " << endl;
+		for(uint nfg = 0; nfg < MainQueue.size(); ++nfg)
+		{
+			cout << MainQueue.at(nfg).Username << endl;
+		}
+#endif
+//*******
+		// Set current node
+		currentNode = MainQueue.at(0);
+		// Pop the first element from the MainQueue
+		MainQueue.erase(MainQueue.begin());
 
-			// Visiting actions
-			// TODO
+		// Visiting actions
+		// TODO
+//------
+#if DEBUG_BFS_ADJ
+			cout << endl << "currentNode: "
+				<< currentNode.Username << endl;
+#endif
+#if DEBUG_BFS_DEPTH
+			cout << "currentNode.depth: "
+				<< Depth_temp << endl;
+#endif
+//********
+		// Visit every adjacent node
+		for(uint k = 0; k < currentNode.UserFollowing.size(); ++k)
+		{
+#if DEBUG_BFS_ADJ
+			cout << endl << "--------- Outer Loop ------------------------------";
+			cout << endl << "currentNode.UserFollowing.at(k): "
+				<< currentNode.UserFollowing.at(k) << endl;
+#endif
+			flag_adj_node = 1;
+			for(uint j = 0; j < DiscoveredList.size(); ++j)
+			{
+#if DEBUG_BFS_ADJ
+				cout << "----------------- Inner Loop --------------------" << endl;
+				cout << "DiscoveredList.at(j).Username: "
+					<< DiscoveredList.at(j).Username << endl;
+#endif
+				if( currentNode.UserFollowing.at(k) == DiscoveredList.at(j).Username )
+				{
+					// The current adjacent is already in DiscoveredList
+					// so do nothing and carry on
+					flag_adj_node *= 0;
+				}
+				else
+				{
+					flag_adj_node *= 1;
+					// The current adjacent is no in DiscoveredList
+					// so add this adjacent node to DiscoveredList
+					// and add this adjacent node to MainQueue
+				}				
+			}	// End inner for loop
+			if(flag_adj_node == 1)
+			{
+				// Perform pushing
+				//MainQueue.push_back( SearchNode( MainNode,
+				//		currentNode.UserFollowing.at(k) ) );
+						
+				temp_Node = SearchNode( MainNode,
+						currentNode.UserFollowing.at(k) );
+				
+				// if the adjacent node is not on MainNode, we need to handle
+					// this differently
+				if(temp_Node.Username == "null")
+				{
+					temp_Node.Username = currentNode.UserFollowing.at(k);
+				}
+				else
+				{
+					MainQueue.push_back(temp_Node);
+				}
+				
+				temp_Node.depth_Node = Depth;
+				DiscoveredList.push_back( temp_Node );
+				
+//*****************************************************************************				
+#if DEBUG_BFS_ADJ_OUT
+				cout << endl << "Username: " << currentNode.Username <<
+					" has adjacent node: " << DiscoveredList.back().Username
+					<< " with Depth: " << DiscoveredList.back().depth_Node
+					<< endl;
+#endif
+//*****************************************************************************
+			}
+		}	// End outer for loop
+		++bfs_counter;
+		Depth_temp = ++Depth;
 
-
-			// for loop for adjacent Node
-			// TODO
-
-
-	}
+#if DEBUG_BFS_QUEUE
+		cout << endl;
+		cout << "----------------------------------------";
+		cout << endl << "Current Edge has these following: " << endl;
+		for(uint i = 0; i < currentEdge.UserFollowing.size(); ++i)
+		{
+						cout << currentEdge.UserFollowing.at(i) << endl;
+		}
+		cout << "Finished printing out current Edge." << endl;
+#endif
+	}	// end while
 	//------------------------------------------------------------------------------//
 	//------------------------------------------------------------------------------//
+	//******************************************************************************//
+	//							BFS ENDS HERE										//
+	//******************************************************************************//	
+	
+	// Calc CNT_Follower
+	CalcFollower(DiscoveredList, MainList);
+	//PrintingDiscoveredList(DiscoveredList);
+	
+	vector<Node> NewNode;
+	NewNode.clear();
+	FindOnDepth(DiscoveredList, NewNode, BFS_DEPTH);
 
+	// Sort by depth first
+	sort(NewNode.rbegin(), NewNode.rend());
+	
+	// Sort by lexicographical_compare
+	vector<Node> SortedNode;
+	SortLexi(NewNode, SortedNode);
 
-
-
-
-
-
-
+	// For debug
+	PrintingDiscoveredList(SortedNode);
+	
 	/*----------------------------------------------------------*/
 	ofstream oup_stream;
 	oup_stream.open(outputFileName);
@@ -221,14 +361,14 @@ int main(int argc, char *argv[]) {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //////////////// Begin of Function //////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
-uint ReadingFile(	unordered_map<string, Edge> &MainList,
+uint ReadingFile(unordered_map<string, Edge> &MainList,
 			vector<Node> &MainNode,
 			string inputFileName)
 {
 #if DEBUG_INPUT_COUNT
 	uint _counter = 0;
 #endif
-	ifstream	inp_stream;
+	ifstream		inp_stream;
 	istringstream	inp_SS;
 
 #if DEBUG_INPUT
@@ -265,7 +405,7 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 
 
 #if DEBUG_INPUT
-	cout << "Input string steam created." << endl;
+	cout << "Input string stream created." << endl;
 #endif
 
 	//***********************************************************************/
@@ -277,8 +417,9 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 		Username_temp.clear();
 		UserFollowing_temp.clear();
 		inp_SS.clear();
-		temp_Edge.UserFollowing.clear();
-		temp_Edge.depth = 0;
+		temp_Edge.Follower.clear();
+		temp_Edge.depth_Edge = 0;
+		
 
 #if DEBUG_GETLINE
 		cout << "-------------------------------------------" << endl;
@@ -291,23 +432,24 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 		// Check for new line \n
 		if(inp_stream.eof())
 		{
+			if(inputFileName == "input1.txt") goto READ_INPUT;
 #if DEBUG_GETLINE
 			cout << "File bottom out." << endl;
 #endif
-		// Calculate the count of followers
+		// Calculate the count of followings
 			for(uint i = 0; i < MainNode.size(); ++i)
 			{
-				MainNode.at(i).CNT_Follower = MainNode.at(i).IncomingEdge.size();
+				MainNode.at(i).CNT_Following = MainNode.at(i).UserFollowing.size();
 #if DEBUG_NODE
 				cout << "Username: "
 					<< MainNode.at(i).Username
-					<< " has " << MainNode.at(i).CNT_Follower
-					<< " followers." << endl;
+					<< " has " << MainNode.at(i).CNT_Following
+					<< " followings." << endl;
 #endif
 			}
 			return 1;
 		}
-
+READ_INPUT:
 #if DEBUG_GETLINE
 		cout << "Raw input: " << input_raw << endl << endl;
 #endif
@@ -315,6 +457,8 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 		inp_SS.str(input_raw);
 		inp_SS >> UserFollowing_temp;
 		inp_SS >> Username_temp;
+		//			github   		MailChimp
+		//	UserFollowing		Username
 
 #if DEBUG_GETLINE
 		cout << "Username temp: " << setw(15) << left << Username_temp
@@ -331,7 +475,7 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		// Making the graph by checking if the Username is already existed
-		search_match = MainList.find(Username_temp);
+		search_match = MainList.find(UserFollowing_temp);
 		if( search_match == MainList.end() )
 		{// The Username is new, so create a new entry in the MainList
 
@@ -348,14 +492,14 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 
 			// Make the UserFollowing_temp as the first element of the temp
 			// 	vector
-			temp_Edge.UserFollowing.push_back(UserFollowing_temp);
+			temp_Edge.Follower.push_back(Username_temp);
 			// Put the temp into the unordered map
-			MainList.insert( {Username_temp, temp_Edge} );
+			MainList.insert( {UserFollowing_temp, temp_Edge} );
 
 #if DEBUG_SEARCH_MATCHING
-			cout << "New entry: Username: " << Username_temp
-				<< " Last Following: "
-				<< MainList.at(Username_temp).UserFollowing.back()
+			cout << "New entry: Username: " << UserFollowing_temp
+				<< " Last Follower: "
+				<< MainList.at(UserFollowing_temp).Follower.back()
 				<< endl;
 #endif
 		}
@@ -363,18 +507,18 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 		{// The Username is already existed in the map, so add to the vector
 #if DEBUG_SEARCH_MATCHING
 			cout << UserFollowing_temp << " is already existed." << endl;
-			cout << "New following: " << UserFollowing_temp << endl;
+			cout << "New Follower: " << Username_temp << endl;
 #endif
 
 #if DEBUG_INPUT_COUNT
 			cout << "Count: " << _counter << endl;
 #endif
 			// Add the UserFollowing_temp to the corresponding vector
-			MainList.at(Username_temp).
-				UserFollowing.push_back(UserFollowing_temp);
+			MainList.at(UserFollowing_temp).
+				Follower.push_back(Username_temp);
 #if DEBUG_SEARCH_MATCHING
-			cout << "Existing Username got a new following: "
-				<< MainList.at(Username_temp).UserFollowing.back()
+			cout << "Existing Username got a new Follower: "
+				<< MainList.at(UserFollowing_temp).Follower.back()
 				<< endl;
 #endif
 		}	// Finished the adding entry
@@ -387,18 +531,22 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 
 		// Clear temp
 		temp_Node.Username.clear();
+		temp_Node.depth_Node = 0;
+		temp_Node.CNT_Follower = 0;
 		temp_Node.IncomingEdge.clear();
+		temp_Node.UserFollowing.clear();
 		node_i = 999999;
 		node_flag = 0;
 
-		temp_Node.Username = UserFollowing_temp;
+		temp_Node.Username = Username_temp;
+
 		for(uint i = 0; i < MainNode.size(); ++i)
 		{
 #if DEBUG_NODE
 			cout << endl << "Node Test: " << endl;
 			cout << MainNode.at(i).Username << endl;
 #endif
-			if(MainNode.at(i).Username == UserFollowing_temp)
+			if(MainNode.at(i).Username == Username_temp)
 			{
 				// Found existing
 				node_flag = 1;
@@ -420,37 +568,38 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 		if(!node_flag)
 		{// When Username doesn't exist in MainNode yet
 #if DEBUG_NODE
-			cout << "Username: " << UserFollowing_temp
+			cout << "Username: " << Username_temp
 				<< " doesn't exist yet."
 				<< " Creating new entry in MainNode." << endl;
 #endif
 			MainNode.push_back(temp_Node);
 			// Put the follower of Username into the node member
 			MainNode.back().
-				IncomingEdge.push_back(Username_temp);
+				UserFollowing.push_back(UserFollowing_temp);
 #if DEBUG_NODE
-			cout << "Username; " << UserFollowing_temp
-				<< " has follower: "
+			cout << "Username; " << Username_temp
+				<< " is following: "
 				<< MainNode.back().
-				IncomingEdge.back() << endl;
+				UserFollowing.back() << endl;
 #endif
 		}
 		else
 		{// Username already existed in MainNode
 #if DEBUG_NODE
-			cout << "Username: " << UserFollowing_temp
+			cout << "Username: " << Username_temp
 				<< " has already existed in vector."
 				<< " Adding it to current vector." << endl;
 #endif
-			MainNode.at(node_i).IncomingEdge.
-				push_back(Username_temp);
+			MainNode.at(node_i).UserFollowing.
+				push_back(UserFollowing_temp);
 
 #if DEBUG_NODE
-			cout << "Username: " << UserFollowing_temp
-				<< " has a new follower: "
-				<< MainNode.at(node_i).IncomingEdge.
+			cout << "Username: " << Username_temp
+				<< " has a new following: "
+				<< MainNode.at(node_i).UserFollowing.
 				back() << endl;
 #endif
+
 		}
 	}	// End while loop
 	inp_stream.close();
@@ -466,7 +615,7 @@ uint ReadingFile(	unordered_map<string, Edge> &MainList,
 //////////////// Begin of Function //////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 #if DEBUG_PRINT_LIST
-void PrintingList( unordered_map<string, Edge> &MainList)
+void PrintingList( unordered_map<string, Edge> &MainList )
 {
 	uint counter = 0;
 	cout<<endl<<endl;
@@ -475,10 +624,10 @@ void PrintingList( unordered_map<string, Edge> &MainList)
 		cout << "Username: ";
 		cout << it.first << endl;
 
-		cout << endl << "Following:" << endl;
-		for(uint i = 0; i < it.second.UserFollowing.size(); ++i)
+		cout << endl << "has Follower:" << endl;
+		for(uint i = 0; i < it.second.Follower.size(); ++i)
 		{
-			cout << it.second.UserFollowing.at(i) << endl;
+			cout << it.second.Follower.at(i) << endl;
 		}
 		cout << endl;
 		++counter;
@@ -486,7 +635,38 @@ void PrintingList( unordered_map<string, Edge> &MainList)
 	cout << "Counter: " << counter << endl;
 	cout << "Map size: " << MainList.size() << endl;
 }
+
+
+void PrintingMainNode( vector<Node> &MainNode )
+{
+	uint counter = 0;
+	cout << endl << "Printing MainNode: " << endl << endl;
+	for(counter = 0; counter < MainNode.size(); ++counter)
+	{
+		cout << setw(3) << right
+		<< counter << ": " << setw(16) << left
+		<< MainNode.at(counter).Username
+		<< " CNT_Follower: " << MainNode.at(counter).CNT_Follower
+		<< endl;
+	}
+}
 #endif
+
+
+void PrintingDiscoveredList( vector<Node> &DiscoveredList )
+{
+	uint counter = 0;
+	cout << endl << "Printing DiscoveredList: " << endl << endl;
+	for(counter = 0; counter < DiscoveredList.size(); ++counter)
+	{
+		cout << setw(3) << right
+		<< counter << ": " << setw(16) << left
+		<< DiscoveredList.at(counter).Username
+		<< " Depth: " << DiscoveredList.at(counter).depth_Node
+		<< " CNT_Follower: " << DiscoveredList.at(counter).CNT_Follower
+		<< endl;
+	}
+}
 //////////////// End of Function ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -496,20 +676,107 @@ void PrintingList( unordered_map<string, Edge> &MainList)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //////////////// Begin of Function //////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
-Node SearchNode			( vector<Node> MainNode, string Username)
+Node SearchNode			( vector<Node> MainNode, string Username )
 {
-				uint index = 0;
-				for(index = 0; index < MainNode.size(); ++index)
-				{
-								if(MainNode.at(index).Username == Username)
-								{
-												return MainNode.at(index);
-								}
-				}
+	uint index = 0;
+	Node empty;
+	for(index = 0; index < MainNode.size(); ++index)
+	{
+		if(MainNode.at(index).Username == Username)
+		{
+			empty = MainNode.at(index);
+			//empty.index_at_MainNode = index;
+			return empty;
+		}
+	}
 
-				Node empty;
-				empty.Username = "Username cannot be found";
-				return empty;
+	empty.Username = "null";
+	return empty;
+}
+//////////////// End of Function ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//////////////// Begin of Function //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+void CalcFollower(vector<Node> &MainNode, unordered_map<string, Edge> &MainList)
+{
+	uint shit = 0;
+	for(auto& it: MainList)
+	{
+		//cout << endl << "it.first: " << it.first << endl;
+		for(shit = 0; shit < MainNode.size(); ++shit)
+		{
+			//cout << "MainNode.at(shit).Username: "
+				//<< MainNode.at(shit).Username << endl;
+			if(MainNode.at(shit).Username == it.first)
+			{
+				MainNode.at(shit).CNT_Follower = it.second.Follower.size();
+				//cout << MainNode.at(shit).CNT_Follower << endl;
+				break;
+			}
+		}
+	}
+}
+//////////////// End of Function ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//////////////// Begin of Function //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+void FindOnDepth(vector<Node> &DiscoveredList, vector<Node> &NewNode, uint InDegree)
+{
+	uint counter = 0;
+	uint temp = 0;
+	for(counter = 0; counter < DiscoveredList.size(); ++counter)
+	{
+		temp = DiscoveredList.at(counter).depth_Node;
+		if( temp <= 3 && temp != 0)
+		{
+			//cout << DiscoveredList.at(counter).Username;
+			//cout << " InDegree <= 3" << endl;
+			NewNode.push_back(DiscoveredList.at(counter));
+		}
+	}
+}
+//////////////// End of Function ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//////////////// Begin of Function //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+void SortLexi(vector<Node> &NewNode, vector<Node> &SortedNode)
+{
+	uint temp = 1;
+	vector<Node> temp_Node;
+
+	while( NewNode.size() != SortedNode.size())
+	{
+		// Make all the node with same depth together
+		temp_Node.clear();
+		for(uint nfg = 0; nfg < NewNode.size(); ++nfg, ++temp)
+		{
+			if(NewNode.at(nfg).depth_Node = nfg)
+			{
+				SortedNode.push_back(temp_Node.at(nfg));
+			}
+		}
+
+		// Sort the partion that have the same depth
+		sort(temp_Node.begin(), temp_Node.end(), lexCompare);
+
+		// Append the sorted temp_Node to SortedNode
+		SortedNode.insert(a.end(), temp_Node.begin(), temp_Node.end());
+	}
 }
 //////////////// End of Function ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////

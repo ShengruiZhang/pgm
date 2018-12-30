@@ -11,10 +11,15 @@ typedef unsigned int uint;
 class Node {
 	private:
 	public:
-		uint CNT_Follower;
 
+		uint CNT_Following;
+		uint CNT_Follower;
 		std::string Username;
+		uint depth_Node;
+		std::vector<std::string> UserFollowing;
 		std::vector <std::string> IncomingEdge;
+
+		bool operator < (const Node &rhs) const { return CNT_Follower < rhs.CNT_Follower; }
 };
 
 #endif
